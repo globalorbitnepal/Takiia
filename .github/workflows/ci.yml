@@ -84,10 +84,11 @@ jobs:
 
       - name: Test
         working-directory: apps/api
+        env:
+          NODE_ENV: test
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "::error::DATABASE_URL is not set for integration tests"; exit 1; fi
-          npx vitest run src/tests/auth.test.ts src/tests/email.test.ts
-          npx vitest run src/tests/integration.test.ts --reporter=verbose
+          npx vitest run --reporter=verbose
 
       - name: Build API
         run: npm run build --workspace @takiia/api
