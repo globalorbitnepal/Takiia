@@ -1,0 +1,178 @@
+# Manual production deploy — gated. Deploys a CI-verified main commit only.
+# See docs/deployment.md. Does not modify Ambition Holidays or other sites.
+#
+# Future automatic deploy (DISABLED — enable only after first successful manual deploy
+# and explicit approval). Do not uncomment until TAKIIA_PRODUCTION_DEPLOY has been used
+# successfully once:
+#
+# on:
+#   workflow_run:
+#     workflows: [CI]
+#     types: [completed]
+#     branches: [main]
+
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_db_backup:
+        description: Type yes only after a real takiia_db backup exists on the server
+        required: true
+        default: 'no'
+      db_backup_path:
+        description: Absolute path to backup file on server (required when pending migrations)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  guard:
+    name: Verify deploy gate
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_sha: ${{ steps.ci_gate.outputs.sha }}
+    steps:
+      - name: Validate deployment prerequisites
+        env:
+          TAKIIA_PRODUCTION_DEPLOY: ${{ vars.TAKIIA_PRODUCTION_DEPLOY }}
+          CONFIRM_DB_BACKUP: ${{ inputs.confirm_db_backup }}
+          SSH_FINGERPRINT: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT }}
+          SSH_HOST: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.TAKIIA_PRODUCTION_SSH_USER }}
+          SSH_KEY: ${{ secrets.TAKIIA_PRODUCTION_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ "${TAKIIA_PRODUCTION_DEPLOY:-}" != "true" ]; then
+            echo "::error::Production deploy is disabled. Set repository variable TAKIIA_PRODUCTION_DEPLOY=true after docs/deployment.md prerequisites."
+            exit 1
+          fi
+
+          if [ -z "${SSH_FINGERPRINT//[[:space:]]/}" ]; then
+            echo "::error::Secret TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT is required before SSH deploy."
+            exit 1
+          fi
+
+          if [ -z "${SSH_HOST//[[:space:]]/}" ]; then
+            echo "::error::Secret TAKIIA_PRODUCTION_SSH_HOST is required."
+            exit 1
+          fi
+
+          if [ -z "${SSH_USER//[[:space:]]/}" ]; then
+            echo "::error::Secret TAKIIA_PRODUCTION_SSH_USER is required."
+            exit 1
+          fi
+
+          if [ "${SSH_USER}" != "takiia" ]; then
+            echo "::error::TAKIIA_PRODUCTION_SSH_USER must be takiia."
+            exit 1
+          fi
+
+          if [ -z "${SSH_KEY//[[:space:]]/}" ]; then
+            echo "::error::Secret TAKIIA_PRODUCTION_SSH_PRIVATE_KEY is required."
+            exit 1
+          fi
+
+          if [ "${CONFIRM_DB_BACKUP:-}" != "yes" ] && [ "${CONFIRM_DB_BACKUP:-}" != "no" ]; then
+            echo "::error::confirm_db_backup must be exactly yes or no."
+            exit 1
+          fi
+
+      - name: Validate backup path input
+        if: ${{ inputs.confirm_db_backup == 'yes' }}
+        env:
+          BACKUP_PATH: ${{ inputs.db_backup_path }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_PATH//[[:space:]]/}" ]; then
+            echo "::error::db_backup_path is required when confirm_db_backup is yes."
+            exit 1
+          fi
+          case "${BACKUP_PATH}" in
+            /var/backups/takiia/*) ;;
+            *)
+              echo "::error::db_backup_path must be under /var/backups/takiia/"
+              exit 1
+              ;;
+          esac
+          case "${BACKUP_PATH}" in
+            *[\`\$\;|&\>\<\(\)]*)
+              echo "::error::db_backup_path contains disallowed shell characters."
+              exit 1
+              ;;
+          esac
+
+      - id: ci_gate
+        name: Verify CI workflow succeeded for main HEAD
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          SHA="$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq .sha)"
+          if [ -z "${SHA}" ] || [ "${#SHA}" -ne 40 ]; then
+            echo "::error::Could not resolve main branch HEAD commit."
+            exit 1
+          fi
+
+          check_ci_job() {
+            local job_name="$1"
+            local conclusion
+            conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SHA}/check-runs" --paginate \
+              --jq "[.check_runs[] | select(.name == \"${job_name}\" and .head_sha == \"${SHA}\" and .status == \"completed\") | .conclusion] | last // empty")"
+            if [ "${conclusion}" != "success" ]; then
+              echo "::error::Required check \"${job_name}\" for ${SHA} must be success (got: ${conclusion:-missing})."
+              return 1
+            fi
+          }
+
+          check_ci_job "Validate workflow syntax"
+          check_ci_job "Build and quality checks"
+
+          echo "CI verified for main @ ${SHA}"
+          echo "sha=${SHA}" >> "${GITHUB_OUTPUT}"
+
+  deploy:
+    name: SSH deploy to server
+    needs: guard
+    if: ${{ needs.guard.outputs.deploy_sha != '' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        env:
+          TAKIIA_DEPLOY_REF: main
+          TAKIIA_DEPLOY_SHA: ${{ needs.guard.outputs.deploy_sha }}
+          TAKIIA_CONFIRM_DB_BACKUP: ${{ inputs.confirm_db_backup }}
+          TAKIIA_DB_BACKUP_PATH: ${{ inputs.db_backup_path }}
+          TAKIIA_ENFORCE_MAIN_ONLY: '1'
+        uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17 # v1.2.0
+        with:
+          host: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST }}
+          username: ${{ secrets.TAKIIA_PRODUCTION_SSH_USER }}
+          key: ${{ secrets.TAKIIA_PRODUCTION_SSH_PRIVATE_KEY }}
+          fingerprint: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT }}
+          script_stop: true
+          envs: TAKIIA_DEPLOY_REF,TAKIIA_DEPLOY_SHA,TAKIIA_CONFIRM_DB_BACKUP,TAKIIA_DB_BACKUP_PATH,TAKIIA_ENFORCE_MAIN_ONLY
+          script: |
+            set -euo pipefail
+            if [ "$(whoami)" != "takiia" ]; then
+              echo "::error::Deploy SSH user must be takiia"
+              exit 1
+            fi
+            export TAKIIA_APP_ROOT=/srv/apps/takiia
+            export TAKIIA_SKIP_GIT_SYNC=1
+            cd "${TAKIIA_APP_ROOT}"
+            bash scripts/deploy/git-sync.sh
+            bash scripts/deploy/remote-deploy.sh
+
+      - name: Verify public health (optional)
+        if: ${{ vars.TAKIIA_VERIFY_PUBLIC_HEALTH == 'true' }}
+        run: |
+          set -euo pipefail
+          curl -fsS https://api.takiia.com/health
+          curl -fsS https://takiia.com/api/health

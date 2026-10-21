@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  HOST: z.string().default('0.0.0.0'),
   PORT: z.coerce.number().int().positive().default(4000),
   DATABASE_URL: z.string().min(1).optional(),
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:8081'),
@@ -20,6 +21,7 @@ const corsOrigins = parsed.data.CORS_ORIGINS.split(',')
 
 export const env = {
   nodeEnv: parsed.data.NODE_ENV,
+  host: parsed.data.HOST,
   port: parsed.data.PORT,
   databaseUrl: parsed.data.DATABASE_URL,
   corsOrigins,

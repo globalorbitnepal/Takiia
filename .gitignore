@@ -47,6 +47,11 @@ apps/mobile/.gradle/
 apps/mobile/android/app/build/
 apps/mobile/ios/build/
 
+# Server-only deploy marker (written on successful deploy)
+.deploy-last-known-good
+
 # Misc
 .turbo/
 .cache/
+actionlint
+actionlint.exe

@@ -35,6 +35,6 @@ io.on('connection', (socket) => {
   socket.emit('takiia:ready', createHealthPayload('socket.io'));
 });
 
-httpServer.listen(env.port, () => {
-  console.log(`[api] listening on http://localhost:${env.port}`);
+httpServer.listen(env.port, env.host, () => {
+  console.log(`[api] listening on http://${env.host}:${env.port}`);
 });

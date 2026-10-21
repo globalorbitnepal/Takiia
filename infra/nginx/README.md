@@ -1,4 +1,5 @@
-# Nginx (planned)
+# Nginx
 
-Reverse proxy configuration for Takiia web, API, and WebSocket upgrades will live here.
-Not deployed in the initial scaffold.
+Example production vhost: `takiia.conf.example` (API + WebSocket + web upstreams).
+
+Do not install on the server until approved. Test with `nginx -t` before any reload.

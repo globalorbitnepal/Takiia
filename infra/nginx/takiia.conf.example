@@ -1,0 +1,78 @@
+# Example Nginx site for Takiia — NOT installed by default.
+# Install only after explicit approval on the production server.
+#
+# Suggested layout:
+#   takiia.com / www.takiia.com  -> Next.js on 127.0.0.1:3034
+#   api.takiia.com               -> API + Socket.IO on 127.0.0.1:3033
+#
+# TLS prerequisites (origin):
+#   - Certificates must cover takiia.com, www.takiia.com, and api.takiia.com (one SAN cert or per-host).
+#   - Cloudflare SSL/TLS mode: Full (strict) only after the origin presents a valid cert Cloudflare trusts.
+#   - "Full" without strict allows invalid origin certs — do not use for production.
+
+# Optional HTTP → HTTPS (add listen 80 blocks when enabling the site):
+# server {
+#     listen 80;
+#     listen [::]:80;
+#     server_name takiia.com www.takiia.com api.takiia.com;
+#     return 301 https://$host$request_uri;
+# }
+
+upstream takiia_web {
+    server 127.0.0.1:3034;
+    keepalive 32;
+}
+
+upstream takiia_api {
+    server 127.0.0.1:3033;
+    keepalive 32;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name takiia.com www.takiia.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/takiia.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/takiia.com/privkey.pem;
+
+    location / {
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://takiia_web;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name api.takiia.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/api.takiia.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/api.takiia.com/privkey.pem;
+
+    location / {
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://takiia_api;
+    }
+
+    # Socket.IO (Engine.IO path)
+    location /socket.io/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+        proxy_pass http://takiia_api;
+    }
+}

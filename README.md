@@ -50,4 +50,23 @@ git push -u origin main
 - Do not put database URLs or private keys in web or mobile bundles.
 - Production VPS, nginx, LiveKit, and Coturn are out of scope for this scaffold.
 
-See [docs/architecture.md](docs/architecture.md) and [docs/local-development.md](docs/local-development.md) for details.
+## Documentation
+
+| Doc                                                                | Topic                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------- |
+| [docs/architecture.md](docs/architecture.md)                       | System layout and production topology             |
+| [docs/local-development.md](docs/local-development.md)             | Local setup                                       |
+| [docs/deployment.md](docs/deployment.md)                           | Production deploy (gated), Cloudflare, Nginx, PM2 |
+| [docs/security.md](docs/security.md)                               | Secrets, keys, public repo rules                  |
+| [docs/database.md](docs/database.md)                               | PostgreSQL and migrations                         |
+| [docs/backup-and-restore.md](docs/backup-and-restore.md)           | Backup before deploy / restore                    |
+| [docs/testing.md](docs/testing.md)                                 | CI and health checks                              |
+| [docs/npm-audit.md](docs/npm-audit.md)                             | Audit findings and safe remediation (proposal)    |
+| [docs/github-actions-pins.md](docs/github-actions-pins.md)         | Pinned Action SHAs and verification               |
+| [docs/domain-cutover.md](docs/domain-cutover.md)                   | Why Ambition shows on takiia.com; cutover plan    |
+| [docs/rollback.md](docs/rollback.md)                               | Rollback steps (documented, not tested)           |
+| [docs/application-readiness.md](docs/application-readiness.md)     | Honest feature status (scaffold, not chat)        |
+| [docs/first-production-deploy.md](docs/first-production-deploy.md) | First deploy checklist                            |
+| [docs/auto-deploy.md](docs/auto-deploy.md)                         | Enable CI auto-deploy (inactive by default)       |
+
+Production deploy via GitHub Actions is **disabled** until `TAKIIA_PRODUCTION_DEPLOY` is set — see [docs/deployment.md](docs/deployment.md). **Automatic deploy is inactive** — see [docs/auto-deploy.md](docs/auto-deploy.md).
