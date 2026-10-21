@@ -38,10 +38,24 @@ function sessionTokenFromCookieHeader(cookieHeader: string): string {
 }
 
 type ApiAgent = ReturnType<typeof request.agent>;
+type TestResponse = Awaited<ReturnType<ApiAgent['get']>>;
+
+const csrfByAgent = new WeakMap<ApiAgent, string>();
 
 async function csrfToken(agent: ApiAgent): Promise<string> {
+  const cached = csrfByAgent.get(agent);
+  if (cached) return cached;
   const res = await agent.get('/auth/csrf');
-  return res.body.csrfToken as string;
+  const token = res.body.csrfToken as string;
+  if (!token) {
+    throw new Error(`csrf failed: ${res.status} ${JSON.stringify(res.body)}`);
+  }
+  csrfByAgent.set(agent, token);
+  return token;
+}
+
+function expectStatus(res: TestResponse, status: number): void {
+  expect(res.status, JSON.stringify(res.body)).toBe(status);
 }
 
 async function registerUser(
@@ -107,17 +121,17 @@ describe.runIf(runIntegration)('integration', () => {
     expect(plansRes.status).toBe(200);
     expect(plansRes.body.plans.length).toBeGreaterThanOrEqual(4);
 
-    const agent = request.agent(server.httpServer);
+    const agent = request.agent(server.baseUrl);
     const email = `ws-${Date.now()}@example.com`;
     await registerUser(agent, email, 'Workspace User');
     const primary = await agent.get('/workspaces/primary');
-    expect(primary.status).toBe(200);
+    expectStatus(primary, 200);
     expect(primary.body.workspace?.subscription?.plan?.code).toBe('STARTER');
   });
 
   it('registers, verifies email, and resets password', async () => {
     sentEmails.length = 0;
-    const agent = request.agent(server.httpServer);
+    const agent = request.agent(server.baseUrl);
     const email = `verify-${Date.now()}@example.com`;
     await registerUser(agent, email, 'Verify User');
 
@@ -127,7 +141,7 @@ describe.runIf(runIntegration)('integration', () => {
       .post('/auth/verify-email')
       .set('x-csrf-token', await csrfToken(agent))
       .send({ token: verifyToken });
-    expect(verify.status).toBe(200);
+    expectStatus(verify, 200);
 
     const me = await agent.get('/auth/me');
     expect(me.body.user.emailVerifiedAt).toBeTruthy();
@@ -137,24 +151,24 @@ describe.runIf(runIntegration)('integration', () => {
       .post('/auth/forgot-password')
       .set('x-csrf-token', await csrfToken(agent))
       .send({ email });
-    expect(forgot.status).toBe(200);
+    expectStatus(forgot, 200);
     const resetToken = extractToken(sentEmails[0].text, 'token');
     const reset = await agent
       .post('/auth/reset-password')
       .set('x-csrf-token', await csrfToken(agent))
       .send({ token: resetToken, password: 'new-password-99' });
-    expect(reset.status).toBe(200);
+    expectStatus(reset, 200);
 
     const login = await agent
       .post('/auth/login')
       .set('x-csrf-token', await csrfToken(agent))
       .send({ email, password: 'new-password-99' });
-    expect(login.status).toBe(200);
+    expectStatus(login, 200);
   });
 
   it('creates direct chat, messages, and attachments', async () => {
-    const agentA = request.agent(server.httpServer);
-    const agentB = request.agent(server.httpServer);
+    const agentA = request.agent(server.baseUrl);
+    const agentB = request.agent(server.baseUrl);
     const emailA = `msg-a-${Date.now()}@example.com`;
     const emailB = `msg-b-${Date.now()}@example.com`;
     await registerUser(agentA, emailA, 'A');
@@ -164,7 +178,7 @@ describe.runIf(runIntegration)('integration', () => {
       .post('/conversations/direct')
       .set('x-csrf-token', await csrfToken(agentA))
       .send({ userId: userB.id });
-    expect(conv.status).toBe(201);
+    expectStatus(conv, 201);
     const conversationId = conv.body.conversation.id as string;
 
     const upload = await agentA
@@ -175,14 +189,14 @@ describe.runIf(runIntegration)('integration', () => {
         filename: 'note.txt',
         contentType: 'text/plain',
       });
-    expect(upload.status).toBe(201);
+    expectStatus(upload, 201);
     const attachmentId = upload.body.attachment.id as string;
 
     const sent = await agentA
       .post(`/conversations/${conversationId}/messages`)
       .set('x-csrf-token', await csrfToken(agentA))
       .send({ body: 'See file', attachmentIds: [attachmentId] });
-    expect(sent.status).toBe(201);
+    expectStatus(sent, 201);
 
     const downloadB = await agentB.get(`/attachments/${attachmentId}`);
     expect(downloadB.status).toBe(200);
@@ -192,9 +206,9 @@ describe.runIf(runIntegration)('integration', () => {
   });
 
   it('enforces group member permissions', async () => {
-    const owner = request.agent(server.httpServer);
-    const member = request.agent(server.httpServer);
-    const outsider = request.agent(server.httpServer);
+    const owner = request.agent(server.baseUrl);
+    const member = request.agent(server.baseUrl);
+    const outsider = request.agent(server.baseUrl);
     const ownerUser = await registerUser(owner, `owner-${Date.now()}@example.com`, 'Owner');
     const memberUser = await registerUser(member, `member-${Date.now()}@example.com`, 'Member');
     await registerUser(outsider, `out-${Date.now()}@example.com`, 'Out');
@@ -203,29 +217,29 @@ describe.runIf(runIntegration)('integration', () => {
       .post('/conversations/group')
       .set('x-csrf-token', await csrfToken(owner))
       .send({ name: 'Test Group', memberIds: [memberUser.id] });
-    expect(group.status).toBe(201);
+    expectStatus(group, 201);
     const conversationId = group.body.conversation.id as string;
 
     const denied = await member
       .post(`/conversations/${conversationId}/members`)
       .set('x-csrf-token', await csrfToken(member))
       .send({ userIds: [ownerUser.id] });
-    expect(denied.status).toBe(403);
+    expectStatus(denied, 403);
 
     const block = await owner
       .post(`/users/${memberUser.id}/block`)
       .set('x-csrf-token', await csrfToken(owner));
-    expect(block.status).toBe(201);
+    expectStatus(block, 201);
 
     const report = await member
       .post(`/users/${ownerUser.id}/report`)
       .set('x-csrf-token', await csrfToken(member))
       .send({ reason: 'spam', details: 'test report' });
-    expect(report.status).toBe(201);
+    expectStatus(report, 201);
   });
 
   it('authorizes Socket.IO with session cookie', async () => {
-    const agent = request.agent(server.httpServer);
+    const agent = request.agent(server.baseUrl);
     const email = `socket-${Date.now()}@example.com`;
     const { sessionCookie } = await registerUser(agent, email, 'Socket User');
     expect(sessionCookie).toContain('takiia_session=');

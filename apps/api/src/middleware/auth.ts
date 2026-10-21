@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { User } from '@prisma/client';
 import { AppError } from '../lib/errors.js';
-import { env } from '../config/env.js';
 import { getUserBySessionToken } from '../services/authService.js';
+import { baseCookieOptions } from '../lib/cookies.js';
 
 const SESSION_COOKIE = 'takiia_session';
 
@@ -44,22 +44,16 @@ export async function requireAuth(
 
 export function setSessionCookie(res: Response, token: string): void {
   res.cookie(SESSION_COOKIE, token, {
+    ...baseCookieOptions(),
     httpOnly: true,
-    secure: env.isProduction,
-    sameSite: env.isProduction ? 'none' : 'lax',
-    domain: env.cookieDomain,
     maxAge: 14 * 24 * 60 * 60 * 1000,
-    path: '/',
   });
 }
 
 export function clearSessionCookie(res: Response): void {
   res.clearCookie(SESSION_COOKIE, {
+    ...baseCookieOptions(),
     httpOnly: true,
-    secure: env.isProduction,
-    sameSite: env.isProduction ? 'none' : 'lax',
-    domain: env.cookieDomain,
-    path: '/',
   });
 }
 
