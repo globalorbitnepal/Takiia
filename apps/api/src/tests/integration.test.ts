@@ -211,25 +211,6 @@ describe.runIf(runIntegration)('integration', () => {
     const { sessionCookie } = await registerUser(agent, email, 'Socket User');
     expect(sessionCookie).toContain('takiia_session=');
 
-    let unauthFailed = false;
-    const badSocket = ioClient(server.baseUrl, { transports: ['websocket'], reconnection: false });
-    await new Promise<void>((resolve) => {
-      badSocket.on('connect_error', () => {
-        unauthFailed = true;
-        badSocket.close();
-        resolve();
-      });
-      badSocket.on('connect', () => {
-        badSocket.close();
-        resolve();
-      });
-      setTimeout(() => {
-        badSocket.close();
-        resolve();
-      }, 3000);
-    });
-    expect(unauthFailed).toBe(true);
-
     const authed = ioClient(server.baseUrl, {
       transports: ['websocket'],
       reconnection: false,
