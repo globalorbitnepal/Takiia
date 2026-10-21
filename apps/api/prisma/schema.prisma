@@ -1,0 +1,18 @@
+// Takiia API — PostgreSQL schema (development scaffold only).
+// Run `npm run db:generate` in apps/api after setting DATABASE_URL locally.
+// Do not run migrations against production until explicitly planned.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Placeholder model so Prisma tooling validates; replace when domain models are designed.
+model HealthCheckStub {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+}

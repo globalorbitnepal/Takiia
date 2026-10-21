@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Takiia",
+    "slug": "takiia",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "takiia",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.takiia.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0b0f14"
+      }
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
