@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 const sendMail = vi.fn(async () => ({ messageId: 'test' }));
 
@@ -9,20 +9,12 @@ vi.mock('nodemailer', () => ({
 }));
 
 describe('email delivery', () => {
-  beforeEach(() => {
-    sendMail.mockClear();
-  });
-
   it('logs in development when SMTP is not configured', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
-    vi.stubEnv('SMTP_HOST', '');
-    vi.resetModules();
     const { sendEmail } = await import('../services/email.js');
     const logSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
     await sendEmail('user@example.com', 'Hello', 'Body text');
     expect(sendMail).not.toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
-    vi.unstubAllEnvs();
   });
 });

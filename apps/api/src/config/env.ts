@@ -1,41 +1,51 @@
 import { z } from 'zod';
 
+function emptyToUndefined(value: unknown): unknown {
+  return value === '' ? undefined : value;
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   HOST: z.string().default('0.0.0.0'),
-  PORT: z.coerce.number().int().positive().default(4000),
-  DATABASE_URL: z.string().min(1).optional(),
+  PORT: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(4000)),
+  DATABASE_URL: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:8081'),
-  SESSION_SECRET: z.string().min(32).default('dev-only-change-me-in-production-32chars!!'),
-  COOKIE_DOMAIN: z.string().optional(),
-  PUBLIC_WEB_URL: z.string().url().default('http://localhost:3000'),
+  SESSION_SECRET: z.preprocess(
+    emptyToUndefined,
+    z.string().min(32).default('dev-only-change-me-in-production-32chars!!'),
+  ),
+  COOKIE_DOMAIN: z.preprocess(emptyToUndefined, z.string().optional()),
+  PUBLIC_WEB_URL: z.preprocess(emptyToUndefined, z.string().url().default('http://localhost:3000')),
   UPLOAD_DIR: z.string().default('./uploads'),
-  MAX_UPLOAD_BYTES: z.coerce
-    .number()
-    .int()
-    .positive()
-    .default(10 * 1024 * 1024),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().optional(),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
-  EMAIL_FROM: z.string().optional(),
+  MAX_UPLOAD_BYTES: z.preprocess(
+    emptyToUndefined,
+    z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(10 * 1024 * 1024),
+  ),
+  SMTP_HOST: z.preprocess(emptyToUndefined, z.string().optional()),
+  SMTP_PORT: z.preprocess(emptyToUndefined, z.coerce.number().optional()),
+  SMTP_USER: z.preprocess(emptyToUndefined, z.string().optional()),
+  SMTP_PASS: z.preprocess(emptyToUndefined, z.string().optional()),
+  EMAIL_FROM: z.preprocess(emptyToUndefined, z.string().optional()),
   STUN_URLS: z.string().default('stun:stun.l.google.com:19302'),
-  TURN_URLS: z.string().optional(),
-  TURN_USERNAME: z.string().optional(),
-  TURN_CREDENTIAL: z.string().optional(),
-  FACEBOOK_APP_ID: z.string().optional(),
-  FACEBOOK_APP_SECRET: z.string().optional(),
-  TIKTOK_CLIENT_KEY: z.string().optional(),
-  TIKTOK_CLIENT_SECRET: z.string().optional(),
-  PAYMENT_PROVIDER: z.string().optional(),
+  TURN_URLS: z.preprocess(emptyToUndefined, z.string().optional()),
+  TURN_USERNAME: z.preprocess(emptyToUndefined, z.string().optional()),
+  TURN_CREDENTIAL: z.preprocess(emptyToUndefined, z.string().optional()),
+  FACEBOOK_APP_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  FACEBOOK_APP_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
+  TIKTOK_CLIENT_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  TIKTOK_CLIENT_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
+  PAYMENT_PROVIDER: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('[api] Invalid environment configuration:', parsed.error.flatten().fieldErrors);
-  process.exit(1);
+  const details = parsed.error.flatten().fieldErrors;
+  throw new Error(`[api] Invalid environment configuration: ${JSON.stringify(details)}`);
 }
 
 const corsOrigins = parsed.data.CORS_ORIGINS.split(',')

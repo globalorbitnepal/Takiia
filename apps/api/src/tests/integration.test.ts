@@ -10,9 +10,7 @@ import { prisma } from '../lib/prisma.js';
 import { createTestServer, sessionCookieHeader } from './testServer.js';
 
 const databaseUrl = process.env.DATABASE_URL;
-const runIntegration = Boolean(
-  databaseUrl?.includes('takiia_test') || process.env.GITHUB_ACTIONS === 'true',
-);
+const runIntegration = Boolean(databaseUrl?.includes('takiia_test'));
 const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const sentEmails: { to: string; subject: string; text: string }[] = [];
@@ -81,7 +79,7 @@ describe.runIf(runIntegration)('integration', () => {
     mkdirSync(uploadDir, { recursive: true });
     process.env.UPLOAD_DIR = uploadDir;
 
-    if (process.env.GITHUB_ACTIONS !== 'true') {
+    if (!process.env.GITHUB_ACTIONS) {
       execSync('npx prisma migrate deploy', {
         cwd: apiRoot,
         env: { ...process.env, DATABASE_URL: databaseUrl },

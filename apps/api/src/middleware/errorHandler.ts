@@ -17,6 +17,12 @@ export function errorHandler(
     return;
   }
 
-  console.error('[api] unhandled error', err instanceof Error ? err.message : err);
-  res.status(500).json({ error: { message: 'Internal server error' } });
+  const detail = err instanceof Error ? err.message : String(err);
+  console.error('[api] unhandled error', detail);
+  res.status(500).json({
+    error: {
+      message: 'Internal server error',
+      ...(process.env.NODE_ENV === 'production' ? {} : { detail }),
+    },
+  });
 }

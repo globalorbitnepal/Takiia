@@ -33,8 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: actionlint
     env:
+      NODE_ENV: test
       DATABASE_URL: postgresql://takiia_test:takiia_test@127.0.0.1:5432/takiia_test?schema=public
-      CI: 'true'
     services:
       postgres:
         image: postgres:16-alpine
@@ -80,15 +80,10 @@ jobs:
       - name: Verify Postgres for integration tests
         working-directory: apps/api
         run: |
-          node --input-type=module -e "import { PrismaClient } from '@prisma/client'; const p = new PrismaClient(); await p.\$queryRaw\`SELECT 1\`; console.log('postgres ok'); await p.\$disconnect();"
+          node --input-type=module -e "import { PrismaClient } from '@prisma/client'; const p = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL }); await p.\$queryRaw\`SELECT 1\`; const plans = await p.plan.count(); console.log('postgres ok plans=' + plans); if (plans < 1) { throw new Error('Plan seed missing'); } await p.\$disconnect();"
 
       - name: Test
-        working-directory: apps/api
-        env:
-          NODE_ENV: test
-        run: |
-          if [ -z "$DATABASE_URL" ]; then echo "::error::DATABASE_URL is not set for integration tests"; exit 1; fi
-          npx vitest run --reporter=verbose
+        run: npm run test
 
       - name: Build API
         run: npm run build --workspace @takiia/api
