@@ -83,7 +83,8 @@ jobs:
           node --input-type=module -e "import { PrismaClient } from '@prisma/client'; const p = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL }); await p.\$queryRaw\`SELECT 1\`; const plans = await p.plan.count(); console.log('postgres ok plans=' + plans); if (plans < 1) { throw new Error('Plan seed missing'); } await p.\$disconnect();"
 
       - name: Test
-        run: npm run test
+        working-directory: apps/api
+        run: npx tsx scripts/ci-test.mjs
 
       - name: Build API
         run: npm run build --workspace @takiia/api
