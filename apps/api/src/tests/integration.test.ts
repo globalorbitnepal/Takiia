@@ -10,7 +10,9 @@ import { prisma } from '../lib/prisma.js';
 import { createTestServer, sessionCookieHeader } from './testServer.js';
 
 const databaseUrl = process.env.DATABASE_URL;
-const runIntegration = Boolean(databaseUrl?.includes('takiia_test') || process.env.CI === 'true');
+const runIntegration = Boolean(
+  databaseUrl?.includes('takiia_test') || process.env.GITHUB_ACTIONS === 'true',
+);
 const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const sentEmails: { to: string; subject: string; text: string }[] = [];
@@ -54,7 +56,9 @@ async function registerUser(
     .post('/auth/register')
     .set('x-csrf-token', token)
     .send({ email, password: 'password-12345', displayName });
-  expect(res.status).toBe(201);
+  if (res.status !== 201) {
+    throw new Error(`register failed: ${res.status} ${JSON.stringify(res.body)}`);
+  }
   const sessionCookie = sessionCookieHeader(res.headers['set-cookie']);
   return {
     ...(res.body.user as { id: string; email: string }),
@@ -66,11 +70,18 @@ describe.runIf(runIntegration)('integration', () => {
   let server: Awaited<ReturnType<typeof createTestServer>>;
 
   beforeAll(async () => {
+    if (!databaseUrl?.includes('takiia_test')) {
+      throw new Error(
+        `Integration tests require DATABASE_URL with takiia_test (got ${databaseUrl ? 'other database' : 'unset'})`,
+      );
+    }
+    await prisma.$queryRaw`SELECT 1`;
+
     const uploadDir = path.join(tmpdir(), `takiia-upload-${Date.now()}`);
     mkdirSync(uploadDir, { recursive: true });
     process.env.UPLOAD_DIR = uploadDir;
 
-    if (process.env.CI !== 'true') {
+    if (process.env.GITHUB_ACTIONS !== 'true') {
       execSync('npx prisma migrate deploy', {
         cwd: apiRoot,
         env: { ...process.env, DATABASE_URL: databaseUrl },

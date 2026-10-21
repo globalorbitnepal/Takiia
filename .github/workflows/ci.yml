@@ -32,6 +32,9 @@ jobs:
     name: Build and quality checks
     runs-on: ubuntu-latest
     needs: actionlint
+    env:
+      DATABASE_URL: postgresql://takiia_test:takiia_test@127.0.0.1:5432/takiia_test?schema=public
+      CI: 'true'
     services:
       postgres:
         image: postgres:16-alpine
@@ -72,15 +75,15 @@ jobs:
 
       - name: Prisma migrate (test database)
         working-directory: apps/api
-        env:
-          DATABASE_URL: postgresql://takiia_test:takiia_test@localhost:5432/takiia_test?schema=public
         run: npx prisma migrate deploy
 
+      - name: Verify Postgres for integration tests
+        working-directory: apps/api
+        run: |
+          node --input-type=module -e "import { PrismaClient } from '@prisma/client'; const p = new PrismaClient(); await p.\$queryRaw\`SELECT 1\`; console.log('postgres ok'); await p.\$disconnect();"
+
       - name: Test
-        env:
-          CI: 'true'
-          DATABASE_URL: postgresql://takiia_test:takiia_test@localhost:5432/takiia_test?schema=public
-        run: npm run test
+        run: npm run test -- --reporter=verbose
 
       - name: Build API
         run: npm run build --workspace @takiia/api
