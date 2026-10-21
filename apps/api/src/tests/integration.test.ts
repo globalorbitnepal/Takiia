@@ -80,7 +80,7 @@ describe.runIf(runIntegration)('integration', () => {
     expect(live.status).toBe(200);
     const ready = await request(server.app).get('/health/ready');
     expect(ready.status).toBe(200);
-    expect(ready.body.database).toBe('ok');
+    expect(ready.body.checks?.database).toBe('ok');
   });
 
   it('exposes database-backed plans and workspace on register', async () => {
