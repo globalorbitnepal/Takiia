@@ -13,10 +13,6 @@ describe('email delivery', () => {
     sendMail.mockClear();
   });
 
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
   it('logs in development when SMTP is not configured', async () => {
     vi.stubEnv('NODE_ENV', 'development');
     vi.stubEnv('SMTP_HOST', '');
@@ -27,5 +23,6 @@ describe('email delivery', () => {
     expect(sendMail).not.toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
+    vi.unstubAllEnvs();
   });
 });

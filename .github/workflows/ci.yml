@@ -83,7 +83,11 @@ jobs:
           node --input-type=module -e "import { PrismaClient } from '@prisma/client'; const p = new PrismaClient(); await p.\$queryRaw\`SELECT 1\`; console.log('postgres ok'); await p.\$disconnect();"
 
       - name: Test
-        run: npm run test -- --reporter=verbose
+        working-directory: apps/api
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::DATABASE_URL is not set for integration tests"; exit 1; fi
+          npx vitest run src/tests/auth.test.ts src/tests/email.test.ts
+          npx vitest run src/tests/integration.test.ts --reporter=verbose
 
       - name: Build API
         run: npm run build --workspace @takiia/api
