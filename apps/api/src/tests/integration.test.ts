@@ -212,7 +212,7 @@ describe.runIf(runIntegration)('integration', () => {
     expect(sessionCookie).toContain('takiia_session=');
 
     const authed = ioClient(server.baseUrl, {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
       reconnection: false,
       extraHeaders: { Cookie: sessionCookie },
     });

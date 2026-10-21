@@ -4,6 +4,7 @@ import { requireAuth, type AuthedRequest } from '../middleware/auth.js';
 import { listWorkspacesForUser, getPrimaryWorkspace } from '../services/workspaceService.js';
 import { prisma } from '../lib/prisma.js';
 import { assertWorkspaceMember } from '../services/workspaceService.js';
+import { serializeWorkspace } from '../lib/serialize.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -11,7 +12,7 @@ router.use(requireAuth);
 router.get('/', async (req: AuthedRequest, res, next) => {
   try {
     const workspaces = await listWorkspacesForUser(req.user!.id);
-    res.json({ workspaces });
+    res.json({ workspaces: workspaces.map((w) => serializeWorkspace(w)) });
   } catch (error) {
     next(error);
   }
@@ -20,7 +21,7 @@ router.get('/', async (req: AuthedRequest, res, next) => {
 router.get('/primary', async (req: AuthedRequest, res, next) => {
   try {
     const workspace = await getPrimaryWorkspace(req.user!.id);
-    res.json({ workspace });
+    res.json({ workspace: serializeWorkspace(workspace) });
   } catch (error) {
     next(error);
   }

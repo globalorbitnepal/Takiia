@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireAuth, type AuthedRequest } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/admin.js';
 import { prisma } from '../lib/prisma.js';
+import { serializePlan } from '../lib/serialize.js';
 
 const router = Router();
 router.use(requireAuth, requireAdmin);
@@ -39,7 +40,7 @@ router.get('/users', async (req: AuthedRequest, res, next) => {
 router.get('/plans', async (_req, res, next) => {
   try {
     const plans = await prisma.plan.findMany({ orderBy: { sortOrder: 'asc' } });
-    res.json({ plans });
+    res.json({ plans: plans.map((p) => serializePlan(p)) });
   } catch (error) {
     next(error);
   }
@@ -66,7 +67,7 @@ router.patch('/plans/:planId', async (req: AuthedRequest, res, next) => {
         metadata: { planId, fields: Object.keys(body) },
       },
     });
-    res.json({ plan });
+    res.json({ plan: serializePlan(plan) });
   } catch (error) {
     next(error);
   }
