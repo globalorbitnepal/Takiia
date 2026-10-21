@@ -48,6 +48,49 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+}
+
+enum SocialAccountStatus {
+  PENDING
+  CONNECTED
+  EXPIRED
+  REVOKED
+}
+
+enum ScheduledPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELED
+}
+
+enum PublishJobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
 model User {
   id              String    @id @default(uuid()) @db.Uuid
   email           String    @unique
@@ -80,10 +123,14 @@ model User {
   notificationPreference   NotificationPreference?
   callParticipants         CallParticipant[]
   auditEvents              AuditEvent[]
-  directPairsAsUserA       DirectConversationPair[]   @relation("DirectUserA")
-  directPairsAsUserB       DirectConversationPair[]   @relation("DirectUserB")
-  groupInvitationsSent     GroupInvitation[]          @relation("Inviter")
-  groupInvitationsReceived GroupInvitation[]          @relation("Invitee")
+  directPairsAsUserA       DirectConversationPair[] @relation("DirectUserA")
+  directPairsAsUserB       DirectConversationPair[] @relation("DirectUserB")
+  groupInvitationsSent     GroupInvitation[]        @relation("Inviter")
+  groupInvitationsReceived GroupInvitation[]        @relation("Invitee")
+  ownedWorkspaces          Workspace[]              @relation("WorkspaceOwner")
+  workspaceMemberships     WorkspaceMember[]
+  scheduledPostsAuthored   ScheduledPost[]
+  workspaceEvents          WorkspaceEvent[]
 
   @@index([displayName])
   @@index([lastSeenAt])
@@ -106,13 +153,13 @@ model Session {
 }
 
 model RefreshToken {
-  id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @db.Uuid
-  tokenHash String    @unique
-  expiresAt DateTime
-  revokedAt DateTime?
-  createdAt DateTime  @default(now())
-  replacedById String? @unique @db.Uuid
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  replacedById String?   @unique @db.Uuid
 
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   replacedBy RefreshToken? @relation("RefreshRotation", fields: [replacedById], references: [id])
@@ -232,10 +279,10 @@ model Message {
   editedAt        DateTime?
   deletedAt       DateTime?
 
-  conversation Conversation           @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User                   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
-  replyTo      Message?               @relation("MessageReplies", fields: [replyToId], references: [id])
-  replies      Message[]              @relation("MessageReplies")
+  conversation Conversation             @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo      Message?                 @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies      Message[]                @relation("MessageReplies")
   attachments  Attachment[]
   deliveries   MessageDeliveryReceipt[]
   reads        MessageReadReceipt[]
@@ -284,14 +331,14 @@ model ConversationReadState {
 }
 
 model Attachment {
-  id           String   @id @default(uuid()) @db.Uuid
-  messageId    String?  @db.Uuid
-  uploaderId   String   @db.Uuid
-  filename     String
-  mimeType     String
-  sizeBytes    Int
-  storageKey   String   @unique
-  createdAt    DateTime @default(now())
+  id         String   @id @default(uuid()) @db.Uuid
+  messageId  String?  @db.Uuid
+  uploaderId String   @db.Uuid
+  filename   String
+  mimeType   String
+  sizeBytes  Int
+  storageKey String   @unique
+  createdAt  DateTime @default(now())
 
   message  Message? @relation(fields: [messageId], references: [id], onDelete: SetNull)
   uploader User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
@@ -340,10 +387,10 @@ model Device {
 }
 
 model NotificationPreference {
-  userId          String  @id @db.Uuid
-  emailEnabled    Boolean @default(true)
-  pushEnabled     Boolean @default(true)
-  messagePreview  Boolean @default(true)
+  userId         String  @id @db.Uuid
+  emailEnabled   Boolean @default(true)
+  pushEnabled    Boolean @default(true)
+  messagePreview Boolean @default(true)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -356,7 +403,7 @@ model Call {
   startedAt      DateTime   @default(now())
   endedAt        DateTime?
 
-  conversation Conversation?   @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  conversation Conversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
   participants CallParticipant[]
 
   @@index([conversationId])
@@ -386,4 +433,185 @@ model AuditEvent {
 
   @@index([createdAt])
   @@index([action])
+}
+
+model Plan {
+  id                        String   @id @default(uuid()) @db.Uuid
+  code                      String   @unique
+  name                      String
+  monthlyPriceCents         Int
+  yearlyPriceCents          Int
+  maxMembers                Int
+  maxSocialAccounts         Int
+  maxScheduledPostsPerMonth Int
+  maxStorageBytes           BigInt
+  maxMeetingMinutesPerMonth Int
+  maxMeetingParticipants    Int      @default(10)
+  features                  Json?
+  active                    Boolean  @default(true)
+  sortOrder                 Int      @default(0)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  subscriptions WorkspaceSubscription[]
+}
+
+model Workspace {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  ownerId   String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner          User                   @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members        WorkspaceMember[]
+  subscription   WorkspaceSubscription?
+  usageRecords   UsageRecord[]
+  socialAccounts SocialAccount[]
+  scheduledPosts ScheduledPost[]
+  events         WorkspaceEvent[]
+
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id          String     @id @default(uuid()) @db.Uuid
+  workspaceId String     @db.Uuid
+  userId      String     @db.Uuid
+  role        MemberRole @default(MEMBER)
+  joinedAt    DateTime   @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model WorkspaceSubscription {
+  id                     String             @id @default(uuid()) @db.Uuid
+  workspaceId            String             @unique @db.Uuid
+  planId                 String             @db.Uuid
+  status                 SubscriptionStatus @default(TRIALING)
+  billingInterval        BillingInterval    @default(MONTHLY)
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  cancelAtPeriodEnd      Boolean            @default(false)
+  paymentProvider        String?
+  externalSubscriptionId String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan      Plan      @relation(fields: [planId], references: [id])
+
+  @@index([planId])
+  @@index([status])
+}
+
+model UsageRecord {
+  id                  String   @id @default(uuid()) @db.Uuid
+  workspaceId         String   @db.Uuid
+  periodStart         DateTime
+  periodEnd           DateTime
+  scheduledPostsCount Int      @default(0)
+  storageBytesUsed    BigInt   @default(0)
+  meetingMinutesUsed  Int      @default(0)
+  updatedAt           DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, periodStart])
+  @@index([workspaceId, periodEnd])
+}
+
+model SocialAccount {
+  id                String              @id @default(uuid()) @db.Uuid
+  workspaceId       String              @db.Uuid
+  platform          SocialPlatform
+  status            SocialAccountStatus @default(PENDING)
+  displayName       String?
+  externalAccountId String?
+  tokenCiphertext   String?
+  tokenExpiresAt    DateTime?
+  scopes            String?
+  connectedAt       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  postTargets PostTarget[]
+  publishJobs PublishJob[]
+
+  @@unique([workspaceId, platform, externalAccountId])
+  @@index([workspaceId])
+}
+
+model ScheduledPost {
+  id              String              @id @default(uuid()) @db.Uuid
+  workspaceId     String              @db.Uuid
+  authorId        String              @db.Uuid
+  body            String
+  mediaStorageKey String?
+  scheduledFor    DateTime?
+  status          ScheduledPostStatus @default(DRAFT)
+  idempotencyKey  String?             @unique
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  targets   PostTarget[]
+  jobs      PublishJob[]
+
+  @@index([workspaceId, scheduledFor])
+  @@index([authorId])
+}
+
+model PostTarget {
+  id              String @id @default(uuid()) @db.Uuid
+  scheduledPostId String @db.Uuid
+  socialAccountId String @db.Uuid
+
+  scheduledPost ScheduledPost @relation(fields: [scheduledPostId], references: [id], onDelete: Cascade)
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([scheduledPostId, socialAccountId])
+}
+
+model PublishJob {
+  id              String           @id @default(uuid()) @db.Uuid
+  scheduledPostId String           @db.Uuid
+  socialAccountId String           @db.Uuid
+  status          PublishJobStatus @default(PENDING)
+  attempts        Int              @default(0)
+  lastError       String?
+  externalPostId  String?
+  idempotencyKey  String           @unique
+  nextAttemptAt   DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  scheduledPost ScheduledPost @relation(fields: [scheduledPostId], references: [id], onDelete: Cascade)
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
+}
+
+model WorkspaceEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String   @db.Uuid
+  creatorId   String   @db.Uuid
+  title       String
+  description String?
+  startsAt    DateTime
+  endsAt      DateTime
+  timezone    String   @default("UTC")
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator   User      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, startsAt])
 }

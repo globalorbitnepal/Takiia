@@ -13,6 +13,11 @@ import { webrtcRouter } from './routes/webrtc.js';
 import { usersRouter } from './routes/users.js';
 import { attachmentsRouter } from './routes/attachments.js';
 import { callsRouter } from './routes/calls.js';
+import { billingRouter } from './routes/billing.js';
+import { workspacesRouter } from './routes/workspaces.js';
+import { socialRouter } from './routes/social.js';
+import { dashboardRouter } from './routes/dashboard.js';
+import { adminRouter } from './routes/admin.js';
 
 export function createApp() {
   const app = express();
@@ -38,6 +43,11 @@ export function createApp() {
   app.use('/users', usersRouter);
   app.use('/attachments', attachmentsRouter);
   app.use('/calls', callsRouter);
+  app.use('/billing', billingRouter);
+  app.use('/workspaces', workspacesRouter);
+  app.use('/social', socialRouter);
+  app.use('/dashboard', dashboardRouter);
+  app.use('/admin', adminRouter);
 
   app.use(errorHandler);
   return app;

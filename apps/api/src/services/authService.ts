@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword } from '../lib/passwords.js';
 import { hashToken, normalizeEmail, randomToken } from '../lib/crypto.js';
 import { env } from '../config/env.js';
 import { sendEmail } from './email.js';
+import { provisionWorkspaceForUser } from './workspaceService.js';
 
 const SESSION_DAYS = 14;
 const VERIFY_HOURS = 48;
@@ -53,6 +54,15 @@ export async function registerUser(input: {
       expiresAt: new Date(Date.now() + VERIFY_HOURS * 60 * 60 * 1000),
     },
   });
+
+  try {
+    await provisionWorkspaceForUser(user.id, user.displayName);
+  } catch (error) {
+    console.warn(
+      '[auth] workspace provisioning skipped:',
+      error instanceof Error ? error.message : error,
+    );
+  }
 
   const verifyUrl = `${env.publicWebUrl}/verify-email?token=${verificationToken}`;
   await sendEmail(user.email, 'Verify your Takiia email', `Open this link to verify: ${verifyUrl}`);

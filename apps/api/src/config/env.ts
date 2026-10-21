@@ -24,6 +24,11 @@ const envSchema = z.object({
   TURN_URLS: z.string().optional(),
   TURN_USERNAME: z.string().optional(),
   TURN_CREDENTIAL: z.string().optional(),
+  FACEBOOK_APP_ID: z.string().optional(),
+  FACEBOOK_APP_SECRET: z.string().optional(),
+  TIKTOK_CLIENT_KEY: z.string().optional(),
+  TIKTOK_CLIENT_SECRET: z.string().optional(),
+  PAYMENT_PROVIDER: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -67,4 +72,11 @@ export const env = {
     turnCredential: parsed.data.TURN_CREDENTIAL,
   },
   isProduction: parsed.data.NODE_ENV === 'production',
+  social: {
+    facebookAppId: parsed.data.FACEBOOK_APP_ID,
+    facebookAppSecret: parsed.data.FACEBOOK_APP_SECRET,
+    tiktokClientKey: parsed.data.TIKTOK_CLIENT_KEY,
+    tiktokClientSecret: parsed.data.TIKTOK_CLIENT_SECRET,
+  },
+  paymentProvider: parsed.data.PAYMENT_PROVIDER ?? 'pending',
 };

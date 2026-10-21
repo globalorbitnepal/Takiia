@@ -83,6 +83,19 @@ describe.runIf(runIntegration)('integration', () => {
     expect(ready.body.database).toBe('ok');
   });
 
+  it('exposes database-backed plans and workspace on register', async () => {
+    const plansRes = await request(server.app).get('/billing/plans');
+    expect(plansRes.status).toBe(200);
+    expect(plansRes.body.plans.length).toBeGreaterThanOrEqual(4);
+
+    const agent = request.agent(server.app);
+    const email = `ws-${Date.now()}@example.com`;
+    await registerUser(agent, email, 'Workspace User');
+    const primary = await agent.get('/workspaces/primary');
+    expect(primary.status).toBe(200);
+    expect(primary.body.workspace?.subscription?.plan?.code).toBe('STARTER');
+  });
+
   it('registers, verifies email, and resets password', async () => {
     sentEmails.length = 0;
     const agent = request.agent(server.app);
