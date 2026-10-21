@@ -55,14 +55,7 @@ export async function registerUser(input: {
     },
   });
 
-  try {
-    await provisionWorkspaceForUser(user.id, user.displayName);
-  } catch (error) {
-    console.warn(
-      '[auth] workspace provisioning skipped:',
-      error instanceof Error ? error.message : error,
-    );
-  }
+  await provisionWorkspaceForUser(user.id, user.displayName);
 
   const verifyUrl = `${env.publicWebUrl}/verify-email?token=${verificationToken}`;
   await sendEmail(user.email, 'Verify your Takiia email', `Open this link to verify: ${verifyUrl}`);
