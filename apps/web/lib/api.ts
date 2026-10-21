@@ -36,4 +36,24 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   return res.json() as Promise<T>;
 }
 
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  const headers = new Headers();
+  headers.set('x-csrf-token', await ensureCsrf());
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers,
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.error?.message ?? `Upload failed (${res.status})`);
+  }
+  return res.json() as Promise<T>;
+}
+
+export function attachmentUrl(id: string): string {
+  return `${API_BASE}/attachments/${id}`;
+}
+
 export { API_BASE };

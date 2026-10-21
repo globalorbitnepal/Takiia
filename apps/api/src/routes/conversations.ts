@@ -73,17 +73,19 @@ router.post('/:conversationId/messages', async (req: AuthedRequest, res, next) =
     const conversationId = z.string().uuid().parse(req.params.conversationId);
     const body = z
       .object({
-        body: z.string().min(1).max(8000),
+        body: z.string().max(8000).optional(),
         clientMessageId: z.string().max(64).optional(),
         replyToId: z.string().uuid().optional(),
+        attachmentIds: z.array(z.string().uuid()).max(5).optional(),
       })
       .parse(req.body);
     const message = await sendMessage({
       conversationId,
       senderId: req.user!.id,
-      body: body.body,
+      body: body.body ?? '',
       clientMessageId: body.clientMessageId,
       replyToId: body.replyToId,
+      attachmentIds: body.attachmentIds,
     });
     res.status(201).json({ message });
   } catch (error) {

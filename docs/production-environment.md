@@ -27,15 +27,24 @@ Never commit real secrets. Create files manually on the server; do not overwrite
 
 ## First migration
 
-1. Backup `takiia_db` to `/var/backups/takiia/`.
-2. Deploy with `confirm_db_backup=yes` and `db_backup_path` set when the workflow detects pending migrations.
-3. Verify `/health/ready` reports `database: ok` on localhost before public cutover.
+1. Backup `takiia_db` to `/var/backups/takiia/` (verify file size and `pg_restore --list` or `head` on custom format).
+2. Run **Deploy Production** manually with workflow input `confirm_db_backup=yes` and `db_backup_path` pointing at that backup when pending migrations exist.
+3. On the server, confirm `curl -fsS http://127.0.0.1:3033/health/ready` shows `database: ok` and PM2 processes are online for API and web only.
+4. Do **not** drop or reset `takiia_db`. Migrations apply forward only via `prisma migrate deploy`.
+
+## SSH and GitHub Actions
+
+- Store the production host **SSH host key fingerprint** in `TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT` (verify with `ssh-keyscan` before first deploy).
+- Deploy user must be `takiia` only (`TAKIIA_PRODUCTION_SSH_USER`).
+- `appleboy/ssh-action` uses the fingerprint secret; never disable host key verification.
+- Repository **secrets** (names only): `TAKIIA_PRODUCTION_SSH_HOST`, `TAKIIA_PRODUCTION_SSH_USER`, `TAKIIA_PRODUCTION_SSH_PRIVATE_KEY`, `TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT`.
+- Optional variable: `TAKIIA_VERIFY_PUBLIC_HEALTH` for post-deploy public URL checks after DNS cutover.
 
 ## Automatic deployment gates
 
-Both must be `true` after first successful manual deploy:
+Leave both **unset or false** until the first manual production deploy succeeds and localhost health, migrations, and the website are verified:
 
 - `TAKIIA_PRODUCTION_DEPLOY`
 - `TAKIIA_AUTO_DEPLOY`
 
-GitHub Secrets (names only): `TAKIIA_PRODUCTION_SSH_HOST`, `TAKIIA_PRODUCTION_SSH_USER`, `TAKIIA_PRODUCTION_SSH_PRIVATE_KEY`, `TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT`.
+Auto deploy uses `TAKIIA_CONFIRM_DB_BACKUP=no` and is unsuitable for the **first** migration without a verified backup. Enable auto deploy only after manual cutover.

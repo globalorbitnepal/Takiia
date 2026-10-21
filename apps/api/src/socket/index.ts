@@ -1,15 +1,30 @@
 import type { Server } from 'socket.io';
+import { parse as parseCookie } from 'cookie';
+import signature from 'cookie-signature';
+import { env } from '../config/env.js';
 import { hashToken } from '../lib/crypto.js';
 import { prisma } from '../lib/prisma.js';
 import { sendMessage } from '../services/messageService.js';
 import { assertMember } from '../services/conversationService.js';
+import { SESSION_COOKIE } from '../middleware/auth.js';
+
+function sessionTokenFromCookieHeader(cookieHeader: string | undefined): string | undefined {
+  if (!cookieHeader) return undefined;
+  const value = parseCookie(cookieHeader)[SESSION_COOKIE];
+  if (!value) return undefined;
+  if (value.startsWith('s:')) {
+    const unsigned = signature.unsign(value.slice(2), env.sessionSecret);
+    return typeof unsigned === 'string' ? unsigned : undefined;
+  }
+  return value;
+}
 
 export function registerSocketHandlers(io: Server): void {
   io.use(async (socket, next) => {
     try {
       const token =
         (socket.handshake.auth?.token as string | undefined) ??
-        socket.request.headers.cookie?.match(/takiia_session=([^;]+)/)?.[1];
+        sessionTokenFromCookieHeader(socket.request.headers.cookie);
       if (!token) {
         return next(new Error('UNAUTHENTICATED'));
       }
@@ -49,14 +64,20 @@ export function registerSocketHandlers(io: Server): void {
     socket.on(
       'message:send',
       async (
-        payload: { conversationId: string; body: string; clientMessageId?: string },
+        payload: {
+          conversationId: string;
+          body?: string;
+          attachmentIds?: string[];
+          clientMessageId?: string;
+        },
         cb?: (err?: string, message?: unknown) => void,
       ) => {
         try {
           const message = await sendMessage({
             conversationId: payload.conversationId,
             senderId: userId,
-            body: payload.body,
+            body: payload.body ?? '',
+            attachmentIds: payload.attachmentIds,
             clientMessageId: payload.clientMessageId,
           });
           io.to(`conversation:${payload.conversationId}`).emit('message:new', message);

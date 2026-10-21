@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
 import { assertMember } from './conversationService.js';
+import { linkAttachmentsToMessage } from './attachmentService.js';
 
 export async function listMessages(
   conversationId: string,
@@ -30,10 +31,13 @@ export async function sendMessage(input: {
   body: string;
   clientMessageId?: string;
   replyToId?: string;
+  attachmentIds?: string[];
 }) {
   await assertMember(input.conversationId, input.senderId);
-  if (!input.body.trim()) {
-    throw new AppError(400, 'Message body is required');
+  const body = input.body?.trim() ?? '';
+  const attachmentIds = input.attachmentIds ?? [];
+  if (!body && attachmentIds.length === 0) {
+    throw new AppError(400, 'Message body or attachment is required');
   }
 
   try {
@@ -42,12 +46,18 @@ export async function sendMessage(input: {
         data: {
           conversationId: input.conversationId,
           senderId: input.senderId,
-          body: input.body.trim(),
+          body: body || null,
           clientMessageId: input.clientMessageId,
           replyToId: input.replyToId,
         },
-        include: { sender: { select: { id: true, displayName: true, avatarUrl: true } } },
+        include: {
+          sender: { select: { id: true, displayName: true, avatarUrl: true } },
+          attachments: true,
+        },
       });
+      if (attachmentIds.length > 0) {
+        await linkAttachmentsToMessage(tx, attachmentIds, created.id, input.senderId);
+      }
       await tx.conversation.update({
         where: { id: input.conversationId },
         data: { lastMessageAt: created.createdAt },
@@ -65,10 +75,19 @@ export async function sendMessage(input: {
           data: { unreadCount: { increment: 1 } },
         });
       }
-      return created;
+      return tx.message.findUniqueOrThrow({
+        where: { id: created.id },
+        include: {
+          sender: { select: { id: true, displayName: true, avatarUrl: true } },
+          attachments: true,
+        },
+      });
     });
     return message;
   } catch (error) {
+    if (error instanceof Error && error.message === 'INVALID_ATTACHMENTS') {
+      throw new AppError(400, 'Invalid or already used attachments', 'INVALID_ATTACHMENTS');
+    }
     if (error instanceof Error && error.message.includes('Unique constraint')) {
       throw new AppError(409, 'Duplicate message submission', 'DUPLICATE_MESSAGE');
     }

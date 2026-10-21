@@ -9,6 +9,7 @@ import { requireAuth, type AuthedRequest } from '../middleware/auth.js';
 import { env } from '../config/env.js';
 import { AppError } from '../lib/errors.js';
 import { assertMember } from '../services/conversationService.js';
+import { userCanAccessAttachment } from '../services/attachmentService.js';
 
 const ALLOWED_MIME = new Set([
   'image/jpeg',
@@ -76,7 +77,8 @@ router.get('/:attachmentId', async (req: AuthedRequest, res, next) => {
     if (!attachment) {
       throw new AppError(404, 'Attachment not found');
     }
-    if (attachment.uploaderId !== req.user!.id) {
+    const allowed = await userCanAccessAttachment(req.user!.id, attachmentId);
+    if (!allowed) {
       throw new AppError(403, 'Not authorized to download this attachment', 'FORBIDDEN');
     }
     const filePath = path.join(env.uploadDir, attachment.storageKey);
