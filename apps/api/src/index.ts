@@ -1,39 +1,30 @@
 import 'dotenv/config';
 import { createServer } from 'node:http';
-import cors from 'cors';
-import express from 'express';
 import { Server } from 'socket.io';
-import { createHealthPayload } from '@takiia/shared';
 import { env } from './config/env.js';
-import { registerHealthRoutes } from './routes/health.js';
+import { createApp } from './app.js';
 import { registerSocketHandlers } from './socket/index.js';
 
-const app = express();
-
-app.use(
-  cors({
-    origin: env.corsOrigins,
-    credentials: true,
-  }),
-);
-app.use(express.json());
-
-registerHealthRoutes(app);
-
+const app = createApp();
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
     origin: env.corsOrigins,
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 
 registerSocketHandlers(io);
 
-io.on('connection', (socket) => {
-  socket.emit('takiia:ready', createHealthPayload('socket.io'));
-});
+function shutdown(signal: string) {
+  console.log(`[api] ${signal} received, closing...`);
+  httpServer.close(() => process.exit(0));
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 httpServer.listen(env.port, env.host, () => {
   console.log(`[api] listening on http://${env.host}:${env.port}`);

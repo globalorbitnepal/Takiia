@@ -6,6 +6,24 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   DATABASE_URL: z.string().min(1).optional(),
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:8081'),
+  SESSION_SECRET: z.string().min(32).default('dev-only-change-me-in-production-32chars!!'),
+  COOKIE_DOMAIN: z.string().optional(),
+  PUBLIC_WEB_URL: z.string().url().default('http://localhost:3000'),
+  UPLOAD_DIR: z.string().default('./uploads'),
+  MAX_UPLOAD_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(10 * 1024 * 1024),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+  STUN_URLS: z.string().default('stun:stun.l.google.com:19302'),
+  TURN_URLS: z.string().optional(),
+  TURN_USERNAME: z.string().optional(),
+  TURN_CREDENTIAL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -25,4 +43,28 @@ export const env = {
   port: parsed.data.PORT,
   databaseUrl: parsed.data.DATABASE_URL,
   corsOrigins,
+  sessionSecret: parsed.data.SESSION_SECRET,
+  cookieDomain: parsed.data.COOKIE_DOMAIN,
+  publicWebUrl: parsed.data.PUBLIC_WEB_URL,
+  uploadDir: parsed.data.UPLOAD_DIR,
+  maxUploadBytes: parsed.data.MAX_UPLOAD_BYTES,
+  smtp: {
+    host: parsed.data.SMTP_HOST,
+    port: parsed.data.SMTP_PORT,
+    user: parsed.data.SMTP_USER,
+    pass: parsed.data.SMTP_PASS,
+    from: parsed.data.EMAIL_FROM,
+  },
+  webrtc: {
+    stunUrls: parsed.data.STUN_URLS.split(',')
+      .map((u) => u.trim())
+      .filter(Boolean),
+    turnUrls:
+      parsed.data.TURN_URLS?.split(',')
+        .map((u) => u.trim())
+        .filter(Boolean) ?? [],
+    turnUsername: parsed.data.TURN_USERNAME,
+    turnCredential: parsed.data.TURN_CREDENTIAL,
+  },
+  isProduction: parsed.data.NODE_ENV === 'production',
 };

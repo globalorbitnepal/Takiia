@@ -39,6 +39,7 @@ coverage/
 *.jks
 *.mobileprovision
 *.sql
+!apps/api/prisma/migrations/**/*.sql
 *.dump
 *.bak
 

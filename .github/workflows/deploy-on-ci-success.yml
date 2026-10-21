@@ -1,0 +1,79 @@
+# Automatic deploy after CI success on main — disabled unless BOTH repository variables are true:
+#   TAKIIA_PRODUCTION_DEPLOY=true
+#   TAKIIA_AUTO_DEPLOY=true
+name: Deploy on CI Success
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  guard:
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          vars.TAKIIA_AUTO_DEPLOY == 'true' &&
+          vars.TAKIIA_PRODUCTION_DEPLOY == 'true' }}
+    name: Verify auto deploy gate
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_sha: ${{ steps.ci_gate.outputs.sha }}
+    steps:
+      - name: Validate deployment prerequisites
+        env:
+          SSH_FINGERPRINT: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT }}
+          SSH_HOST: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.TAKIIA_PRODUCTION_SSH_USER }}
+          SSH_KEY: ${{ secrets.TAKIIA_PRODUCTION_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SSH_FINGERPRINT//[[:space:]]/}" ]; then exit 1; fi
+          if [ -z "${SSH_HOST//[[:space:]]/}" ]; then exit 1; fi
+          if [ -z "${SSH_USER//[[:space:]]/}" ]; then exit 1; fi
+          if [ "${SSH_USER}" != "takiia" ]; then exit 1; fi
+          if [ -z "${SSH_KEY//[[:space:]]/}" ]; then exit 1; fi
+
+      - id: ci_gate
+        name: Pin deploy SHA to CI workflow run
+        run: |
+          set -euo pipefail
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          echo "sha=${SHA}" >> "${GITHUB_OUTPUT}"
+
+  deploy:
+    if: ${{ needs.guard.result == 'success' && needs.guard.outputs.deploy_sha != '' }}
+    name: SSH deploy to server
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: takiia-production-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Deploy over SSH
+        env:
+          TAKIIA_DEPLOY_REF: main
+          TAKIIA_DEPLOY_SHA: ${{ needs.guard.outputs.deploy_sha }}
+          TAKIIA_CONFIRM_DB_BACKUP: 'no'
+          TAKIIA_ENFORCE_MAIN_ONLY: '1'
+        uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17 # v1.2.0
+        with:
+          host: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST }}
+          username: ${{ secrets.TAKIIA_PRODUCTION_SSH_USER }}
+          key: ${{ secrets.TAKIIA_PRODUCTION_SSH_PRIVATE_KEY }}
+          fingerprint: ${{ secrets.TAKIIA_PRODUCTION_SSH_HOST_FINGERPRINT }}
+          script_stop: true
+          envs: TAKIIA_DEPLOY_REF,TAKIIA_DEPLOY_SHA,TAKIIA_CONFIRM_DB_BACKUP,TAKIIA_ENFORCE_MAIN_ONLY
+          script: |
+            set -euo pipefail
+            if [ "$(whoami)" != "takiia" ]; then exit 1; fi
+            export TAKIIA_APP_ROOT=/srv/apps/takiia
+            export TAKIIA_SKIP_GIT_SYNC=1
+            cd "${TAKIIA_APP_ROOT}"
+            bash scripts/deploy/git-sync.sh
+            bash scripts/deploy/remote-deploy.sh

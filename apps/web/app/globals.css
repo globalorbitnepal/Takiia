@@ -1,19 +1,18 @@
 :root {
-  color-scheme: light dark;
-  --bg: #0b0f14;
-  --fg: #e8eef5;
-  --muted: #8b9aab;
-  --accent: #3d8bfd;
-  --card: #121820;
-  --border: #243041;
+  --bg: #0b1020;
+  --panel: #121a2f;
+  --panel-2: #1a2440;
+  --text: #eef2ff;
+  --muted: #9aa8c7;
+  --accent: #5b8cff;
+  --accent-2: #7c5cff;
+  --danger: #ff6b8a;
+  --border: #24304f;
+  --radius: 14px;
   font-family:
+    'Segoe UI',
     system-ui,
     -apple-system,
-    Segoe UI,
-    Roboto,
-    Ubuntu,
-    Cantarell,
-    Noto Sans,
     sans-serif;
 }
 
@@ -21,50 +20,61 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--fg);
-}
-
-main {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 3rem 1.25rem;
-}
-
-h1 {
-  font-size: 2rem;
-  margin: 0 0 0.5rem;
-}
-
-p {
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.card {
-  margin-top: 1.5rem;
-  padding: 1rem 1.25rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-}
-
-.card dt {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-}
-
-.card dd {
-  margin: 0.25rem 0 0.75rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  word-break: break-all;
+  min-height: 100%;
+  background: radial-gradient(circle at top, #15213f 0%, var(--bg) 55%);
+  color: var(--text);
 }
 
 a {
   color: var(--accent);
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.container {
+  width: min(1120px, 92vw);
+  margin: 0 auto;
+}
+
+.card {
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+}
+
+.btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.muted {
+  color: var(--muted);
 }

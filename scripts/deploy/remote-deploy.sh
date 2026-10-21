@@ -99,5 +99,6 @@ if ! bash "${SCRIPT_DIR}/verify-health.sh"; then
 fi
 
 git rev-parse HEAD > "${APP_ROOT}/.deploy-last-known-good"
+echo "Deployed commit: $(git rev-parse HEAD)"
 
 echo "Deploy complete"
