@@ -99,12 +99,10 @@ jobs:
               exit 1
               ;;
           esac
-          case "${BACKUP_PATH}" in
-            *[\`\$\;|&\>\<\(\)]*)
-              echo "::error::db_backup_path contains disallowed shell characters."
-              exit 1
-              ;;
-          esac
+          if printf '%s' "${BACKUP_PATH}" | grep -qE '[`$;|&><()]'; then
+            echo "::error::db_backup_path contains disallowed shell characters."
+            exit 1
+          fi
 
       - id: ci_gate
         name: Verify CI workflow succeeded for main HEAD
