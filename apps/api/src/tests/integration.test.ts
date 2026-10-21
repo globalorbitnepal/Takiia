@@ -95,19 +95,19 @@ describe.runIf(runIntegration)('integration', () => {
   });
 
   it('health endpoints respond', async () => {
-    const live = await request(server.app).get('/health');
+    const live = await request(server.httpServer).get('/health');
     expect(live.status).toBe(200);
-    const ready = await request(server.app).get('/health/ready');
+    const ready = await request(server.httpServer).get('/health/ready');
     expect(ready.status).toBe(200);
     expect(ready.body.checks?.database).toBe('ok');
   });
 
   it('exposes database-backed plans and workspace on register', async () => {
-    const plansRes = await request(server.app).get('/billing/plans');
+    const plansRes = await request(server.httpServer).get('/billing/plans');
     expect(plansRes.status).toBe(200);
     expect(plansRes.body.plans.length).toBeGreaterThanOrEqual(4);
 
-    const agent = request.agent(server.app);
+    const agent = request.agent(server.httpServer);
     const email = `ws-${Date.now()}@example.com`;
     await registerUser(agent, email, 'Workspace User');
     const primary = await agent.get('/workspaces/primary');
@@ -117,7 +117,7 @@ describe.runIf(runIntegration)('integration', () => {
 
   it('registers, verifies email, and resets password', async () => {
     sentEmails.length = 0;
-    const agent = request.agent(server.app);
+    const agent = request.agent(server.httpServer);
     const email = `verify-${Date.now()}@example.com`;
     await registerUser(agent, email, 'Verify User');
 
@@ -153,8 +153,8 @@ describe.runIf(runIntegration)('integration', () => {
   });
 
   it('creates direct chat, messages, and attachments', async () => {
-    const agentA = request.agent(server.app);
-    const agentB = request.agent(server.app);
+    const agentA = request.agent(server.httpServer);
+    const agentB = request.agent(server.httpServer);
     const emailA = `msg-a-${Date.now()}@example.com`;
     const emailB = `msg-b-${Date.now()}@example.com`;
     await registerUser(agentA, emailA, 'A');
@@ -187,14 +187,14 @@ describe.runIf(runIntegration)('integration', () => {
     const downloadB = await agentB.get(`/attachments/${attachmentId}`);
     expect(downloadB.status).toBe(200);
 
-    const downloadDenied = await request(server.app).get(`/attachments/${attachmentId}`);
+    const downloadDenied = await request(server.httpServer).get(`/attachments/${attachmentId}`);
     expect(downloadDenied.status).toBe(401);
   });
 
   it('enforces group member permissions', async () => {
-    const owner = request.agent(server.app);
-    const member = request.agent(server.app);
-    const outsider = request.agent(server.app);
+    const owner = request.agent(server.httpServer);
+    const member = request.agent(server.httpServer);
+    const outsider = request.agent(server.httpServer);
     const ownerUser = await registerUser(owner, `owner-${Date.now()}@example.com`, 'Owner');
     const memberUser = await registerUser(member, `member-${Date.now()}@example.com`, 'Member');
     await registerUser(outsider, `out-${Date.now()}@example.com`, 'Out');
@@ -225,7 +225,7 @@ describe.runIf(runIntegration)('integration', () => {
   });
 
   it('authorizes Socket.IO with session cookie', async () => {
-    const agent = request.agent(server.app);
+    const agent = request.agent(server.httpServer);
     const email = `socket-${Date.now()}@example.com`;
     const { sessionCookie } = await registerUser(agent, email, 'Socket User');
     expect(sessionCookie).toContain('takiia_session=');
