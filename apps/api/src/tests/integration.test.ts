@@ -27,6 +27,16 @@ function extractToken(text: string, param: string): string {
   return match[1];
 }
 
+function sessionTokenFromCookieHeader(cookieHeader: string): string {
+  const match = cookieHeader.match(/(?:^|;\s*)takiia_session=([^;]+)/);
+  if (!match) return '';
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
 type ApiAgent = ReturnType<typeof request.agent>;
 
 async function csrfToken(agent: ApiAgent): Promise<string> {
@@ -211,10 +221,13 @@ describe.runIf(runIntegration)('integration', () => {
     const { sessionCookie } = await registerUser(agent, email, 'Socket User');
     expect(sessionCookie).toContain('takiia_session=');
 
+    const sessionToken = sessionTokenFromCookieHeader(sessionCookie);
+    expect(sessionToken.length).toBeGreaterThan(0);
+
     const authed = ioClient(server.baseUrl, {
-      transports: ['polling', 'websocket'],
+      auth: { token: sessionToken },
+      transports: ['polling'],
       reconnection: false,
-      extraHeaders: { Cookie: sessionCookie },
     });
 
     await new Promise<void>((resolve, reject) => {

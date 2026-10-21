@@ -13,7 +13,7 @@ export async function provisionWorkspaceForUser(userId: string, displayName: str
   if (!starter) {
     throw new Error('PLANS_NOT_SEEDED');
   }
-  const slug = `ws-${userId.replace(/-/g, '').slice(0, 12)}`;
+  const slug = `ws-${userId.replace(/-/g, '')}`;
   const { start, end } = billingPeriod();
   return prisma.workspace.create({
     data: {

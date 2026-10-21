@@ -11,7 +11,6 @@ vi.mock('nodemailer', () => ({
 describe('email delivery', () => {
   beforeEach(() => {
     sendMail.mockClear();
-    vi.resetModules();
   });
 
   afterEach(() => {
@@ -21,6 +20,7 @@ describe('email delivery', () => {
   it('logs in development when SMTP is not configured', async () => {
     vi.stubEnv('NODE_ENV', 'development');
     vi.stubEnv('SMTP_HOST', '');
+    vi.resetModules();
     const { sendEmail } = await import('../services/email.js');
     const logSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
     await sendEmail('user@example.com', 'Hello', 'Body text');

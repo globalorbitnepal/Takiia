@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { jsonBigIntMiddleware } from './middleware/jsonBigInt.js';
 import { apiRateLimit } from './middleware/rateLimit.js';
 import { csrfProtection, registerCsrfRoute } from './middleware/csrf.js';
 import { registerHealthRoutes } from './routes/health.js';
@@ -30,6 +31,7 @@ export function createApp() {
     }),
   );
   app.use(express.json({ limit: '1mb' }));
+  app.use(jsonBigIntMiddleware);
   app.use(cookieParser(env.sessionSecret));
   app.use(apiRateLimit);
 
