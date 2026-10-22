@@ -12,10 +12,11 @@ Production env example: `docs/production-environment.md` suggests `/srv/apps/tak
 
 ## Verified server state (read-only SSH)
 
-| Check                               | Result                                                                                  |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `/srv/apps/takiia/apps/api/uploads` | **Absent** at last audit                                                                |
-| PM2 cwd                             | Typically `/srv/apps/takiia/apps/api` — default `./uploads` would be `apps/api/uploads` |
+| Check                               | Result                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
+| PM2 `takiia-api` `exec cwd`         | **`/srv/apps/takiia`** (verified 2026-10-23)           |
+| Default `./uploads` resolved path   | **`/srv/apps/takiia/uploads`** — **directory missing** |
+| `/srv/apps/takiia/apps/api/uploads` | **Absent**                                             |
 
 **Inference:** Either no attachment uploads in production yet, or `UPLOAD_DIR` points elsewhere (verify in vault-backed `.env` without printing values).
 
