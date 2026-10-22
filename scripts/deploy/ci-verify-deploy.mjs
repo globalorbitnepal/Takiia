@@ -115,11 +115,12 @@ function startFixtureServer(commit, homeHtml) {
   });
 }
 
-function runVerifyDeploy(bashExecutable, appRoot, sha, origin) {
+function runVerifyDeploy(bashExecutable, appRoot, sha, origin, ciEnvFile) {
   return spawnSync(bashExecutable, [verifyScript], {
     env: {
       ...process.env,
       ...gitEnv,
+      TAKIIA_CI_ENV_FILE: ciEnvFile,
       TAKIIA_APP_ROOT: appRoot,
       TAKIIA_EXPECTED_SHA: sha,
       TAKIIA_API_VERIFY_ORIGIN: origin,
@@ -146,8 +147,19 @@ async function withFixture(bashExecutable, homeHtml, expectSuccess) {
   );
 
   const { server, origin } = await startFixtureServer(sha, homeHtml);
+  const ciEnvFile = join(appRoot, '.verify-deploy.ci.env');
+  writeFileSync(
+    ciEnvFile,
+    [
+      `TAKIIA_APP_ROOT=${appRoot}`,
+      `TAKIIA_EXPECTED_SHA=${sha}`,
+      `TAKIIA_API_VERIFY_ORIGIN=${origin}`,
+      `TAKIIA_WEB_VERIFY_ORIGIN=${origin}`,
+    ].join('\n') + '\n',
+    'utf8',
+  );
   try {
-    const result = runVerifyDeploy(bashExecutable, appRoot, sha, origin);
+    const result = runVerifyDeploy(bashExecutable, appRoot, sha, origin, ciEnvFile);
     const ok = result.status === 0;
     if (expectSuccess && !ok) {
       throw new Error(

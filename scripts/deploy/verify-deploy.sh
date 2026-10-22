@@ -2,6 +2,13 @@
 # Post-deploy verification — fails if the server is not on the expected commit or still serving a stale web build.
 set -euo pipefail
 
+if [[ -n "${TAKIIA_CI_ENV_FILE:-}" ]] && [[ -f "${TAKIIA_CI_ENV_FILE}" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "${TAKIIA_CI_ENV_FILE}"
+  set +a
+fi
+
 # Legacy starter HTML/RSC signatures (old production build before marketing site).
 takiia_homepage_is_legacy_starter() {
   local body="$1"
