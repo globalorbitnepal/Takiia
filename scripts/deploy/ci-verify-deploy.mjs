@@ -132,7 +132,10 @@ function runVerifyDeploy(bashExecutable, appRoot, sha, origin, ciEnvFile) {
 }
 
 async function withFixture(bashExecutable, homeHtml, expectSuccess) {
-  const appRoot = join(tmpdir(), `takiia-verify-deploy-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const appRoot = join(
+    scriptDir,
+    `.ci-verify-deploy-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  );
   mkdirSync(appRoot, { recursive: true });
   runGit(appRoot, ['init', '-b', 'main']);
   runGit(appRoot, ['config', 'safe.directory', appRoot]);
@@ -162,8 +165,17 @@ async function withFixture(bashExecutable, homeHtml, expectSuccess) {
     const result = runVerifyDeploy(bashExecutable, appRoot, sha, origin, ciEnvFile);
     const ok = result.status === 0;
     if (expectSuccess && !ok) {
+      console.error(
+        `::error::verify-deploy integration (expect success) exit=${result.status} signal=${result.signal ?? 'none'}`,
+      );
+      if (result.stdout) {
+        console.error(result.stdout);
+      }
+      if (result.stderr) {
+        console.error(result.stderr);
+      }
       throw new Error(
-        `expected verify-deploy success, got exit ${result.status} signal ${result.signal ?? 'none'}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+        `expected verify-deploy success, got exit ${result.status} signal ${result.signal ?? 'none'}`,
       );
     }
     if (!expectSuccess && ok) {

@@ -51,6 +51,7 @@ apps/mobile/ios/build/
 # Server-only deploy marker (written on successful deploy)
 .deploy-last-known-good
 .deploy-metadata.json
+scripts/deploy/.ci-verify-deploy-*/
 
 # Production PM2 config (copy from infra/pm2/ecosystem.config.example.cjs on the server)
 ecosystem.config.cjs
