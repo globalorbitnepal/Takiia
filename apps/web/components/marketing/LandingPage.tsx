@@ -1,7 +1,7 @@
 import Link from 'next/link';
+import { HeroSection } from './HeroSection';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
-import { ProductShowcase } from './ProductShowcase';
 import { PricingSection } from './PricingSection';
 
 const capabilities = [
@@ -20,58 +20,7 @@ export function LandingPage() {
     <>
       <SiteHeader />
       <main>
-        <section className="section" id="top">
-          <div className="container grid-2">
-            <div>
-              <p className="eyebrow">ONE WORKSPACE. BETTER COLLABORATION.</p>
-              <h1 className="h1">Chat, Meet and Manage Social Media — All in One Place.</h1>
-              <p className="muted" style={{ fontSize: '1.1rem', lineHeight: 1.65, maxWidth: 540 }}>
-                Bring your conversations, online meetings, team collaboration and social publishing
-                together in one simple workspace. Spend less time switching tools and more time
-                getting work done.
-              </p>
-              <div
-                style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}
-              >
-                <Link className="btn" href="/signup">
-                  Get Started
-                </Link>
-                <Link className="btn secondary" href="#platform">
-                  Explore the Platform
-                </Link>
-              </div>
-              <p className="muted" style={{ fontSize: 13, marginTop: '1rem' }}>
-                One centralized workspace for messaging, meetings, and publishing — your data stays
-                in your Takiia account.
-              </p>
-              <ul
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem',
-                  padding: 0,
-                  listStyle: 'none',
-                }}
-              >
-                {[
-                  'Team Messaging',
-                  'Online Meetings',
-                  'Social Publishing',
-                  'Shared Workspaces',
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="glass"
-                    style={{ padding: '0.35rem 0.75rem', borderRadius: 999 }}
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <ProductShowcase />
-          </div>
-        </section>
+        <HeroSection />
 
         <section className="section-alt" style={{ padding: '1.5rem 0' }}>
           <div
