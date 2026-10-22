@@ -1,10 +1,14 @@
 import type { Express, Request, Response } from 'express';
-import { createHealthPayload } from '@takiia/shared';
+import { createHealthPayload, readDeployCommitFromAppRoot } from '@takiia/shared';
 import { API_VERSION } from '../version.js';
+
+function deployCommit(): string | undefined {
+  return readDeployCommitFromAppRoot(process.env.TAKIIA_APP_ROOT ?? process.cwd());
+}
 
 export function registerHealthRoutes(app: Express): void {
   app.get('/health', (_req: Request, res: Response) => {
-    res.json(createHealthPayload('api', API_VERSION));
+    res.json(createHealthPayload('api', API_VERSION, deployCommit()));
   });
 
   app.get('/health/ready', async (_req: Request, res: Response) => {
@@ -18,7 +22,7 @@ export function registerHealthRoutes(app: Express): void {
     }
     const status = database === 'error' ? 503 : 200;
     res.status(status).json({
-      ...createHealthPayload('api', API_VERSION),
+      ...createHealthPayload('api', API_VERSION, deployCommit()),
       checks: { database },
     });
   });

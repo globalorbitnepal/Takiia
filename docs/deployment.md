@@ -2,6 +2,8 @@
 
 This document describes the **planned** production layout for [takiia.com](https://takiia.com). **Nothing in this file deploys automatically** until server bootstrap is complete, secrets are configured, and the repository variable `TAKIIA_PRODUCTION_DEPLOY` is set to `true`.
 
+**Why pushes do not update the live site:** see [deployment-root-cause.md](deployment-root-cause.md).
+
 ## Production topology
 
 | Component       | Process                         | Bind address     | Public URL                                     |

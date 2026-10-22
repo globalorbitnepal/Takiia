@@ -34,6 +34,15 @@ if pm2 describe takiia-api >/dev/null 2>&1; then
   git rev-parse HEAD > "${APP_ROOT}/.deploy-last-known-good"
 fi
 
+echo "Pre-sync working tree summary:"
+git status -sb || true
+if [[ -f "${APP_ROOT}/ecosystem.config.cjs" ]]; then
+  echo "Local PM2 ecosystem.config.cjs present (untracked or ignored — preserved across sync)."
+fi
+if [[ -e "${APP_ROOT}/path" ]]; then
+  echo "::warning::Untracked empty file 'path' exists in app root (likely accidental); not removed by this script."
+fi
+
 echo "Syncing to approved ref..."
 
 if [[ -n "${TAKIIA_DEPLOY_SHA:-}" ]]; then
@@ -46,8 +55,15 @@ if [[ -n "${TAKIIA_DEPLOY_SHA:-}" ]]; then
     echo "::error::TAKIIA_DEPLOY_SHA must be an ancestor of origin/main"
     exit 1
   fi
-  git checkout --detach "${TAKIIA_DEPLOY_SHA}"
-  echo "Git sync complete (pinned SHA)"
+  if [[ "${ENFORCE_MAIN_ONLY}" == "1" ]]; then
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+      echo "::warning::Tracked files differ from index; aligning to CI commit ${TAKIIA_DEPLOY_SHA} (untracked files such as ecosystem.config.cjs are kept)."
+    fi
+    git checkout --force --detach "${TAKIIA_DEPLOY_SHA}"
+  else
+    git checkout --detach "${TAKIIA_DEPLOY_SHA}"
+  fi
+  echo "Git sync complete (pinned SHA $(git rev-parse --short HEAD))"
   exit 0
 fi
 

@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-1. First **manual** deploy succeeded (localhost health on 3033/3034).
+1. First **manual** deploy succeeded (localhost health on 3033/3034 and `verify-deploy.sh` passed).
 2. Optional: public domain cutover verified if you use `TAKIIA_VERIFY_PUBLIC_HEALTH`.
 3. Explicit approval to enable automation.
 

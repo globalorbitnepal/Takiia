@@ -73,6 +73,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Validate deploy scripts
+        run: bash scripts/deploy/ci-validate-deploy-scripts.sh
+
       - name: Prisma migrate (test database)
         working-directory: apps/api
         run: npx prisma migrate deploy

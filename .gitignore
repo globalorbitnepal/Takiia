@@ -50,6 +50,13 @@ apps/mobile/ios/build/
 
 # Server-only deploy marker (written on successful deploy)
 .deploy-last-known-good
+.deploy-metadata.json
+
+# Production PM2 config (copy from infra/pm2/ecosystem.config.example.cjs on the server)
+ecosystem.config.cjs
+
+# Accidental empty file sometimes created by shell redirects
+/path
 
 # Misc
 .turbo/

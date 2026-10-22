@@ -13,6 +13,10 @@
 
 name: Deploy Production
 
+concurrency:
+  group: takiia-production-deploy
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
@@ -133,6 +137,7 @@ jobs:
 
           echo "CI verified for main @ ${SHA}"
           echo "sha=${SHA}" >> "${GITHUB_OUTPUT}"
+          echo "Deploy will pin server to commit ${SHA} after gate checks pass."
 
   deploy:
     name: SSH deploy to server
@@ -165,12 +170,26 @@ jobs:
             export TAKIIA_APP_ROOT=/srv/apps/takiia
             export TAKIIA_SKIP_GIT_SYNC=1
             cd "${TAKIIA_APP_ROOT}"
+            echo "Starting deploy for commit ${TAKIIA_DEPLOY_SHA}"
             bash scripts/deploy/git-sync.sh
             bash scripts/deploy/remote-deploy.sh
+            echo "Server deploy scripts finished for ${TAKIIA_DEPLOY_SHA}"
 
       - name: Verify public health (optional)
         if: ${{ vars.TAKIIA_VERIFY_PUBLIC_HEALTH == 'true' }}
+        env:
+          EXPECTED_SHA: ${{ needs.guard.outputs.deploy_sha }}
         run: |
           set -euo pipefail
-          curl -fsS https://api.takiia.com/health
-          curl -fsS https://takiia.com/api/health
+          api_body="$(curl -fsS https://api.takiia.com/health)"
+          web_body="$(curl -fsS https://takiia.com/api/health)"
+          echo "${api_body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'
+          echo "${web_body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'
+          echo "${api_body}" | grep -q "\"commit\"[[:space:]]*:[[:space:]]*\"${EXPECTED_SHA}\""
+          echo "${web_body}" | grep -q "\"commit\"[[:space:]]*:[[:space:]]*\"${EXPECTED_SHA}\""
+          curl -fsS -o /dev/null "https://takiia.com/pricing"
+          curl -fsS "https://takiia.com/" | grep -q '_next/static'
+          if curl -fsS "https://takiia.com/" | grep -q 'Starter web app for messaging and calling'; then
+            echo "::error::Public homepage still matches legacy starter build"
+            exit 1
+          fi

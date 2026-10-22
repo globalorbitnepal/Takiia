@@ -75,5 +75,6 @@ jobs:
             export TAKIIA_APP_ROOT=/srv/apps/takiia
             export TAKIIA_SKIP_GIT_SYNC=1
             cd "${TAKIIA_APP_ROOT}"
+            echo "Auto-deploy for CI commit ${TAKIIA_DEPLOY_SHA}"
             bash scripts/deploy/git-sync.sh
             bash scripts/deploy/remote-deploy.sh

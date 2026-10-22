@@ -21,6 +21,7 @@ module.exports = {
         NODE_ENV: 'production',
         HOST: '127.0.0.1',
         PORT: '3033',
+        TAKIIA_APP_ROOT: appRoot,
       },
     },
     {
@@ -33,6 +34,7 @@ module.exports = {
       exec_mode: 'fork',
       env_production: {
         NODE_ENV: 'production',
+        TAKIIA_APP_ROOT: appRoot,
       },
     },
   ],

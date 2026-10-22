@@ -14,6 +14,8 @@ source "${SCRIPT_DIR}/lib/database.sh"
 source "${SCRIPT_DIR}/lib/migrate.sh"
 # shellcheck source=lib/pm2-takiia.sh
 source "${SCRIPT_DIR}/lib/pm2-takiia.sh"
+# shellcheck source=lib/write-deploy-metadata.sh
+source "${SCRIPT_DIR}/lib/write-deploy-metadata.sh"
 
 if [[ "$(whoami)" != "takiia" ]]; then
   echo "::error::remote-deploy.sh must run as user takiia"
@@ -90,12 +92,25 @@ else
   echo "DATABASE_URL not set — skipping migration logic"
 fi
 
+takiia_write_deploy_metadata "${APP_ROOT}"
+
 echo "Starting or reloading Takiia PM2 processes only..."
 pm2_takiia_start_or_reload_both "${ECOSYSTEM_CONFIG}"
 
 if ! bash "${SCRIPT_DIR}/verify-health.sh"; then
   echo "::error::Health checks failed after PM2 start/reload. Last known-good SHA (if recorded): see .deploy-last-known-good"
   exit 1
+fi
+
+expected_sha="${TAKIIA_DEPLOY_SHA:-${TAKIIA_EXPECTED_SHA:-}}"
+if [[ -n "${expected_sha}" ]]; then
+  export TAKIIA_EXPECTED_SHA="${expected_sha}"
+  if ! bash "${SCRIPT_DIR}/verify-deploy.sh"; then
+    echo "::error::Deploy verification failed; production may still be on an older build."
+    exit 1
+  fi
+else
+  echo "::warning::TAKIIA_DEPLOY_SHA not set; skipping commit and marketing build verification"
 fi
 
 git rev-parse HEAD > "${APP_ROOT}/.deploy-last-known-good"

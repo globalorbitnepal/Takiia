@@ -2,12 +2,16 @@
 
 Run on the **production server** as user `takiia` under `/srv/apps/takiia`. PM2 operations touch **only** `takiia-api` and `takiia-web` (per-app `reload` or `start ecosystem.config.cjs --only <name>`). Never `pm2 reload all` or `pm2 save`.
 
-| Script             | Purpose                                              |
-| ------------------ | ---------------------------------------------------- |
-| `git-sync.sh`      | Fetch approved `main` or detached commit SHA         |
-| `remote-deploy.sh` | Build, conditional migrate, PM2 reload, health       |
-| `verify-health.sh` | Localhost-only checks on ports 3033 / 3034           |
-| `lib/load-env.sh`  | Source env files with permission checks (no logging) |
+Shell scripts are invoked as `bash scripts/deploy/<name>.sh` in CI and GitHub Actions. When staging new `*.sh` files, set the executable bit for Linux checkouts: `git add --chmod=+x scripts/deploy/<name>.sh`.
+
+| Script                          | Purpose                                                                                                    |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `git-sync.sh`                   | Fetch approved `main` or detached commit SHA                                                               |
+| `remote-deploy.sh`              | Build, conditional migrate, PM2 reload, health                                                             |
+| `verify-health.sh`              | Localhost-only checks on ports 3033 / 3034                                                                 |
+| `verify-deploy.sh`              | Fails if HEAD, health `commit`, `/pricing`, or legacy starter homepage markers do not match the deploy SHA |
+| `ci-validate-deploy-scripts.sh` | CI: `bash -n` all deploy scripts + offline `verify-deploy` fixture tests                                   |
+| `lib/load-env.sh`               | Source env files with permission checks (no logging)                                                       |
 
 ### Environment variables
 
@@ -21,6 +25,7 @@ Run on the **production server** as user `takiia` under `/srv/apps/takiia`. PM2 
 | `TAKIIA_CONFIRM_DB_BACKUP` | `yes` attests a human verified backup (does **not** create a backup)                   |
 | `TAKIIA_DB_BACKUP_PATH`    | Absolute path to a **non-empty** dump file when migrations are pending                 |
 | `TAKIIA_ECOSYSTEM_CONFIG`  | PM2 ecosystem file path                                                                |
+| `TAKIIA_EXPECTED_SHA`      | Same as `TAKIIA_DEPLOY_SHA` for `verify-deploy.sh`                                     |
 
 ### Env file permissions
 
