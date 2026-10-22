@@ -40,12 +40,10 @@ load_env_file "${APP_ROOT}/apps/web/.env.production" NEXT_PUBLIC_API_URL
 echo "Installing dependencies..."
 npm ci
 
-echo "Building (must succeed before PM2 start/reload)..."
-npm run build --workspace @takiia/shared
-npm run build --workspace @takiia/api
-npm run build --workspace @takiia/web
-
 LOAD_ENV_STRICT_PERMS=1 load_env_file "${APP_ROOT}/apps/api/.env" HOST PORT NODE_ENV
+
+echo "Generating Prisma client..."
+npm run db:generate --workspace @takiia/api
 
 if [[ -n "${DATABASE_URL:-}" ]]; then
   if ! validate_takiia_database_url "${DATABASE_URL}"; then
@@ -96,6 +94,11 @@ if [[ -n "${DATABASE_URL:-}" ]]; then
 else
   echo "DATABASE_URL not set — skipping migration logic"
 fi
+
+echo "Building (must succeed before PM2 start/reload)..."
+npm run build --workspace @takiia/shared
+npm run build --workspace @takiia/api
+npm run build --workspace @takiia/web
 
 takiia_write_deploy_metadata "${APP_ROOT}"
 
