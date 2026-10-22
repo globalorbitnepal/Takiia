@@ -23,10 +23,10 @@ On server (read-only first):
 cd /srv/apps/takiia/apps/api && npx prisma migrate status
 ```
 
-| Migrate status | Workflow inputs |
-| -------------- | --------------- |
-| Database schema is up to date | `confirm_db_backup` = **no** |
-| Pending migrations | Run `scripts/backup/takiia-db-backup.sh` as `takiia`, then `confirm_db_backup` = **yes** and `db_backup_path` = absolute path under `/var/backups/takiia/` |
+| Migrate status                | Workflow inputs                                                                                                                                            |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Database schema is up to date | `confirm_db_backup` = **no**                                                                                                                               |
+| Pending migrations            | Run `scripts/backup/takiia-db-backup.sh` as `takiia`, then `confirm_db_backup` = **yes** and `db_backup_path` = absolute path under `/var/backups/takiia/` |
 
 Never bypass failed backup or database identity gates.
 

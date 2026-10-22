@@ -57,15 +57,15 @@ Only this exact phrase authorizes the agent to run the **full** preflight, commi
 
 Preflight checklist:
 
-| Gate | Requirement |
-|------|-------------|
-| Commit | Known 40-char SHA; branch policy satisfied (PR merged if required) |
-| Working tree | Understood; no secrets in commit |
-| Tests | API tests, typecheck, lint, deploy-script validation |
-| SSH | Fingerprint match; `takiia` access |
-| DB | `prisma migrate status` — backup if pending migrations |
-| Backup | Recent non-empty dump + `sha256sum -c` |
-| Scope | Only Takiia PM2/nginx/db |
+| Gate         | Requirement                                                        |
+| ------------ | ------------------------------------------------------------------ |
+| Commit       | Known 40-char SHA; branch policy satisfied (PR merged if required) |
+| Working tree | Understood; no secrets in commit                                   |
+| Tests        | API tests, typecheck, lint, deploy-script validation               |
+| SSH          | Fingerprint match; `takiia` access                                 |
+| DB           | `prisma migrate status` — backup if pending migrations             |
+| Backup       | Recent non-empty dump + `sha256sum -c`                             |
+| Scope        | Only Takiia PM2/nginx/db                                           |
 
 If any gate fails, stop before production writes and report the blocker.
 
