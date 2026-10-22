@@ -1,0 +1,10 @@
+# Example crontab line for user takiia (NOT INSTALLED by repository automation).
+# Install only after explicit operator approval.
+#
+# 02:15 UTC daily — adjust timezone as needed
+# 15 2 * * * /srv/apps/takiia/scripts/backup/takiia-db-backup.sh >> /var/backups/takiia/cron.log 2>&1
+#
+# Verify after first run:
+#   ls -la /var/backups/takiia/takiia_db_backup_*.dump
+#   sha256sum -c <newest>.dump.sha256
+#   pg_restore --list <newest>.dump | grep -c 'TABLE DATA'
