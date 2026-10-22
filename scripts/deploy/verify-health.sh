@@ -29,18 +29,31 @@ validate_takiia_health_url() {
 validate_takiia_health_url "${API_URL}" "API"
 validate_takiia_health_url "${WEB_URL}" "Web"
 
+curl_health_ok() {
+  local url="$1"
+  local body
+  body="$(curl -fsS "${url}" 2>/dev/null)" || return 1
+  echo "${body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'
+}
+
+wait_for_health() {
+  local url="$1"
+  local label="$2"
+  local attempt
+  for attempt in $(seq 1 30); do
+    if curl_health_ok "${url}"; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "::error::${label} health check failed after 30s"
+  return 1
+}
+
 echo "Checking API health endpoint..."
-api_body="$(curl -fsS "${API_URL}")"
-if ! echo "${api_body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
-  echo "::error::API health check failed"
-  exit 1
-fi
+wait_for_health "${API_URL}" "API"
 
 echo "Checking Web health endpoint..."
-web_body="$(curl -fsS "${WEB_URL}")"
-if ! echo "${web_body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
-  echo "::error::Web health check failed"
-  exit 1
-fi
+wait_for_health "${WEB_URL}" "Web"
 
 echo "Takiia health checks OK"
