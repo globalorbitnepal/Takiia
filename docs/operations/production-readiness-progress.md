@@ -6,7 +6,7 @@ Evidence only — no secrets. Updated after continued audit pass.
 
 | Item                          | Status        | Evidence (2026-10-23)                                                                  |
 | ----------------------------- | ------------- | -------------------------------------------------------------------------------------- |
-| Feature branch                | **VERIFIED**  | `fix/deploy-prisma-before-api-build` @ `a47ada5` (local = `origin`)                    |
+| Feature branch                | **VERIFIED**  | `fix/deploy-prisma-before-api-build` @ `16edaf7` (4 commits ahead of `main`)           |
 | `main`                        | **VERIFIED**  | `44a3f5f2af5cecb8c57b365332541ae3de653b2b`                                             |
 | Working tree                  | **VERIFIED**  | Clean before new commit in this pass                                                   |
 | Open PR to `main`             | **NOT FOUND** | `GET /repos/.../pulls?head=globalorbitnepal:fix/deploy-prisma-before-api-build` → `[]` |
