@@ -8,7 +8,8 @@
 - Production `takiia_db` was reported **without application tables**; an existing **892-byte** `pg_dump` archive had **no table TOC entries** and is **not** a verified recovery backup.
 - `remote-deploy.sh` applies migrations only when `prisma migrate status` reports pending changes, and only if:
   - `TAKIIA_CONFIRM_DB_BACKUP=yes`, and
-  - `TAKIIA_DB_BACKUP_PATH` points to a file under `/var/backups/takiia/` that passes **`validate-db-backup`** (custom `PGDMP` dump with restorable `pg_restore --list` TOC entries, or plain SQL with `CREATE TABLE` / schema markers). Non-empty but invalid dumps (e.g. 892-byte empty archives) are rejected.
+  - `TAKIIA_DB_BACKUP_PATH` points to a file under `/var/backups/takiia/` that passes **`validate-db-backup`** (custom `PGDMP` dump with restorable `pg_restore --list` TOC entries, or plain SQL with `CREATE TABLE` / schema markers).
+- **First deploy on an empty `takiia_db`:** a pre-migrate `pg_dump` is often an **empty catalog** (valid custom archive, no `TABLE` TOC lines). That file **does not** prove application-data recovery. It is accepted **only** when a read-only check shows **zero public tables** and **no** `_prisma_migrations`, and the operator sets **`TAKIIA_CONFIRM_EMPTY_DATABASE_BASELINE=yes`** (Deploy Production input `confirm_empty_database_baseline`). After the first successful `migrate deploy`, take a **new** dump that lists real tables for future deploys.
 
 See `scripts/deploy/remote-deploy.sh` (migration block) and `scripts/deploy/lib/migrate.sh`.
 
@@ -33,6 +34,7 @@ Run on the server as user **`takiia`** (or DBA with least privilege on **`takiia
 3. Run **Deploy Production** with:
    - `confirm_db_backup=yes`
    - `db_backup_path=/var/backups/takiia/<verified-file>`
+   - `confirm_empty_database_baseline=yes` **only** if `takiia_db` is still empty (no public tables, no `_prisma_migrations`) and the backup path is the pre-migrate empty-catalog dump
 4. Confirm `scripts/deploy/verify-deploy.sh` passes (commit + `/pricing` + marketing homepage).
 5. Confirm `https://api.takiia.com/health/ready` shows `database: ok` when applicable.
 

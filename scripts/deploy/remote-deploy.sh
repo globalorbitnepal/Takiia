@@ -82,7 +82,7 @@ if [[ -n "${DATABASE_URL:-}" ]]; then
       echo "::error::TAKIIA_DB_BACKUP_PATH contains disallowed characters."
       exit 1
     fi
-    if ! takiia_validate_db_backup_file "${TAKIIA_DB_BACKUP_PATH}"; then
+    if ! takiia_validate_db_backup_for_migrate_gate "${TAKIIA_DB_BACKUP_PATH}" "${DATABASE_URL}"; then
       exit 1
     fi
     echo "Applying Prisma migrations (pending migrations detected)..."

@@ -41,3 +41,19 @@ export function postgresBackupContentsLookRestorable(listOrDumpText) {
   }
   return false;
 }
+
+/**
+ * True when pg_restore --list succeeded but lists no application schema objects.
+ * Used only with a live read-only check that production has no tables yet (first migrate).
+ * Does not imply recoverability of user or application data.
+ */
+export function postgresBackupIsEmptyCustomCatalog(listOrDumpText) {
+  if (postgresBackupContentsLookRestorable(listOrDumpText)) {
+    return false;
+  }
+  const lines = listOrDumpText.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  if (lines.length === 0) {
+    return false;
+  }
+  return lines.some((line) => line.startsWith(';'));
+}
