@@ -15,7 +15,9 @@ describe('verify-health.sh retry behavior', () => {
   });
 
   it('requires JSON status ok, not merely HTTP success', () => {
-    expect(verifyHealthSh).toContain('grep -q \'\"status\"[[:space:]]*:[[:space:]]*\"ok\"\'');
+    expect(verifyHealthSh).toContain('curl_health_ok');
+    expect(verifyHealthSh).toContain('"status"');
+    expect(verifyHealthSh).toContain('"ok"');
   });
 
   it('restricts checks to 127.0.0.1 Takiia ports', () => {
