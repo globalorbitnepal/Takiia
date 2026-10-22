@@ -39,11 +39,7 @@ Proposed policy for **new verified** dumps: 14 days, filename pattern `takiia_db
 
 ## Daily automation (prepared, not installed)
 
-Example cron (install only after approval):
-
-```cron
-15 2 * * * takiia /srv/apps/takiia/scripts/backup/takiia-db-backup.sh >> /var/backups/takiia/cron.log 2>&1
-```
+Example cron (install only after approval): see `scripts/backup/install-daily-backup.cron.example`.
 
 Alert if no verified backup within 26 hours (monitoring not configured in repo).
 

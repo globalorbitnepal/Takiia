@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# TEMPLATE — copy to /home/takiia/bin/ after approval. Do not commit secrets.
+# Requires: restic, S3-compatible credentials in env file (mode 600).
+set -euo pipefail
+
+# RESTIC_REPOSITORY=s3:s3.amazonaws.com/<bucket>/takiia
+# RESTIC_PASSWORD_FILE=/home/takiia/.config/takiia/restic-password
+# AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (or provider equivalents)
+
+BACKUP_ROOT="${TAKIIA_BACKUP_ROOT:-/var/backups/takiia}"
+UPLOAD_DIR="${TAKIIA_UPLOAD_BACKUP_PATH:-/srv/apps/takiia/apps/api/uploads}"
+
+echo "DRY-RUN TEMPLATE: restic backup ${BACKUP_ROOT}/takiia_db_backup_*.dump ${BACKUP_ROOT}/*.sha256"
+echo "Optional: restic backup ${UPLOAD_DIR} if directory exists"
+echo "After backup: restic check && restic snapshots"
+exit 0
