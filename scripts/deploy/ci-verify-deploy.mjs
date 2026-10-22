@@ -115,21 +115,16 @@ function startFixtureServer(commit, homeHtml) {
   });
 }
 
-function shellSingleQuote(value) {
-  return `'${String(value).replace(/'/g, `'\\''`)}'`;
-}
-
 function runVerifyDeploy(bashExecutable, appRoot, sha, origin) {
-  const command = [
-    `export TAKIIA_APP_ROOT=${shellSingleQuote(appRoot)}`,
-    `export TAKIIA_EXPECTED_SHA=${shellSingleQuote(sha)}`,
-    `export TAKIIA_API_VERIFY_ORIGIN=${shellSingleQuote(origin)}`,
-    `export TAKIIA_WEB_VERIFY_ORIGIN=${shellSingleQuote(origin)}`,
-    `exec bash ${shellSingleQuote(verifyScript)}`,
-  ].join(' && ');
-
-  return spawnSync(bashExecutable, ['-c', command], {
-    env: gitEnv,
+  return spawnSync(bashExecutable, [verifyScript], {
+    env: {
+      ...process.env,
+      ...gitEnv,
+      TAKIIA_APP_ROOT: appRoot,
+      TAKIIA_EXPECTED_SHA: sha,
+      TAKIIA_API_VERIFY_ORIGIN: origin,
+      TAKIIA_WEB_VERIFY_ORIGIN: origin,
+    },
     encoding: 'utf8',
     timeout: 120_000,
   });
@@ -156,7 +151,7 @@ async function withFixture(bashExecutable, homeHtml, expectSuccess) {
     const ok = result.status === 0;
     if (expectSuccess && !ok) {
       throw new Error(
-        `expected verify-deploy success, got exit ${result.status}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+        `expected verify-deploy success, got exit ${result.status} signal ${result.signal ?? 'none'}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
       );
     }
     if (!expectSuccess && ok) {
