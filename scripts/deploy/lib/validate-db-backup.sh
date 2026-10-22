@@ -2,9 +2,10 @@
 # Validate a PostgreSQL backup file before migrations (format + restorable TOC, not size alone).
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Do not set SCRIPT_DIR here — this file is sourced by remote-deploy.sh which relies on SCRIPT_DIR.
+_VALIDATE_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=database.sh
-source "${SCRIPT_DIR}/database.sh"
+source "${_VALIDATE_LIB_DIR}/database.sh"
 
 takiia_validate_db_backup_file() {
   local path="$1"
@@ -14,7 +15,7 @@ takiia_validate_db_backup_file() {
     return 1
   fi
 
-  if ! node "${SCRIPT_DIR}/validate-db-backup-cli.mjs" validate-file "${path}"; then
+  if ! node "${_VALIDATE_LIB_DIR}/validate-db-backup-cli.mjs" validate-file "${path}"; then
     return 1
   fi
 
@@ -46,7 +47,7 @@ takiia_validate_db_backup_for_migrate_gate() {
     return 1
   fi
 
-  if ! TAKIIA_ALLOW_EMPTY_CUSTOM_BASELINE=1 node "${SCRIPT_DIR}/validate-db-backup-cli.mjs" validate-file "${path}"; then
+  if ! TAKIIA_ALLOW_EMPTY_CUSTOM_BASELINE=1 node "${_VALIDATE_LIB_DIR}/validate-db-backup-cli.mjs" validate-file "${path}"; then
     echo "::error::Backup is not a valid empty-catalog pg_dump custom archive for first-migrate baseline."
     return 1
   fi
