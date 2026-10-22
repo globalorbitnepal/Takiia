@@ -15,6 +15,8 @@ import {
   postgresBackupContentsLookRestorable,
   postgresBackupIsEmptyCustomCatalog,
 } from './lib/validate-db-backup.mjs';
+import { remoteDeployScriptOrderIsValid } from './lib/remote-deploy-order.mjs';
+import { readFileSync } from 'node:fs';
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const verifyScript = join(scriptDir, 'verify-deploy.sh');
@@ -58,6 +60,10 @@ function runUnitTests() {
   }
   if (!MODERN_HOME.includes('_next/static')) {
     throw new Error('modern fixture should include _next/static');
+  }
+  const remoteDeploy = readFileSync(join(scriptDir, 'remote-deploy.sh'), 'utf8');
+  if (!remoteDeployScriptOrderIsValid(remoteDeploy)) {
+    throw new Error('remote-deploy.sh must generate Prisma client before API build');
   }
 }
 

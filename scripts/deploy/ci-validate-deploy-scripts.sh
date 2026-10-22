@@ -21,4 +21,11 @@ for rel in \
   bash -n "${path}"
 done
 
+BACKUP_DIR="$(cd "${SCRIPT_DIR}/../backup" && pwd)"
+for rel in takiia-db-backup.sh takiia-restore-test.sh; do
+  path="${BACKUP_DIR}/${rel}"
+  head -n 1 "${path}" | grep -q '^#!/usr/bin/env bash$'
+  bash -n "${path}"
+done
+
 node "${SCRIPT_DIR}/ci-verify-deploy.mjs"

@@ -13,12 +13,21 @@ Applies to **`takiia_db`** only. Do not backup or restore other production datab
 
 **Important:** `TAKIIA_CONFIRM_DB_BACKUP=yes` and the GitHub workflow input `confirm_db_backup` are **attestations only**. They do **not** create a backup. Deploy scripts require `TAKIIA_DB_BACKUP_PATH` to point to an existing, non-empty dump file on the server **only when Prisma reports pending migrations**.
 
-## Suggested backup command (run on server as DB owner)
+## Repository backup script (preferred)
 
-Use your approved PostgreSQL tooling. Example pattern (adjust paths and authentication):
+On the production server as user `takiia`:
 
 ```bash
-# Run on server — uses peer/auth configured by DBA; do not commit credentials.
+/srv/apps/takiia/scripts/backup/takiia-db-backup.sh
+/srv/apps/takiia/scripts/backup/takiia-db-backup.sh --dry-run
+```
+
+Details: [operations/database-backups.md](operations/database-backups.md).
+
+## Manual pg_dump (fallback)
+
+```bash
+# Run on server — uses auth from apps/api/.env; do not commit credentials.
 pg_dump -Fc -d takiia_db -f /var/backups/takiia/takiia_db_$(date +%Y%m%d_%H%M%S).dump
 ```
 
