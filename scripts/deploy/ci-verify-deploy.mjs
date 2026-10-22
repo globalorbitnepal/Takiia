@@ -13,6 +13,7 @@ import { homepageIsLegacyStarter } from './lib/legacy-homepage.mjs';
 import {
   detectPostgresBackupFormat,
   postgresBackupContentsLookRestorable,
+  postgresBackupIsEmptyCustomCatalog,
 } from './lib/validate-db-backup.mjs';
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
@@ -42,6 +43,12 @@ function runUnitTests() {
   }
   if (postgresBackupContentsLookRestorable(';\n')) {
     throw new Error('empty pg_restore list should not validate');
+  }
+  if (!postgresBackupIsEmptyCustomCatalog(';\n')) {
+    throw new Error('semicolon-only pg_restore list should be empty custom catalog');
+  }
+  if (postgresBackupIsEmptyCustomCatalog('; 1 2 TABLE public plans postgres\n')) {
+    throw new Error('TABLE list must not be treated as empty catalog');
   }
   if (!homepageIsLegacyStarter(LEGACY_HOME)) {
     throw new Error('legacy homepage fixture should be detected');

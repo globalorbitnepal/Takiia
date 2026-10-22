@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { detectPostgresBackupFormat, postgresBackupContentsLookRestorable } from './validate-db-backup.mjs';
+import {
+  detectPostgresBackupFormat,
+  postgresBackupContentsLookRestorable,
+  postgresBackupIsEmptyCustomCatalog,
+} from './validate-db-backup.mjs';
+
+const allowEmptyCustomBaseline = process.env.TAKIIA_ALLOW_EMPTY_CUSTOM_BASELINE === '1';
 
 const [command, filePath] = process.argv.slice(2);
 
@@ -24,12 +30,17 @@ if (format === 'pg_custom') {
     console.error(list.stderr || list.stdout || 'pg_restore --list failed');
     process.exit(1);
   }
-  if (!postgresBackupContentsLookRestorable(list.stdout || '')) {
-    console.error('pg_restore --list has no restorable TABLE/SCHEMA entries');
-    process.exit(1);
+  const listText = list.stdout || '';
+  if (postgresBackupContentsLookRestorable(listText)) {
+    console.log('pg_custom');
+    process.exit(0);
   }
-  console.log('pg_custom');
-  process.exit(0);
+  if (allowEmptyCustomBaseline && postgresBackupIsEmptyCustomCatalog(listText)) {
+    console.log('pg_custom_empty_baseline');
+    process.exit(0);
+  }
+  console.error('pg_restore --list has no restorable TABLE/SCHEMA entries');
+  process.exit(1);
 }
 
 if (format === 'pg_plain') {

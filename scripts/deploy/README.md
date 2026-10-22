@@ -11,6 +11,7 @@ Shell scripts are invoked as `bash scripts/deploy/<name>.sh` in CI and GitHub Ac
 | `verify-health.sh`              | Localhost-only checks on ports 3033 / 3034                                                                 |
 | `verify-deploy.sh`              | Fails if HEAD, health `commit`, `/pricing`, or legacy starter homepage markers do not match the deploy SHA |
 | `ci-validate-deploy-scripts.sh` | CI: `bash -n` all deploy scripts + offline `verify-deploy` fixture tests                                   |
+| `rehearse-migrations-test-db.sh` | `prisma migrate deploy` on a non-production DB via `git archive` (does not change app root checkout)      |
 | `lib/load-env.sh`               | Source env files with permission checks (no logging)                                                       |
 
 ### Environment variables
@@ -23,8 +24,8 @@ Shell scripts are invoked as `bash scripts/deploy/<name>.sh` in CI and GitHub Ac
 | `TAKIIA_ENFORCE_MAIN_ONLY` | `1` requires `TAKIIA_DEPLOY_SHA` and blocks non-`main` `TAKIIA_DEPLOY_REF`             |
 | `TAKIIA_SKIP_GIT_SYNC`     | `1` when `git-sync.sh` already ran (GitHub Actions)                                    |
 | `TAKIIA_CONFIRM_DB_BACKUP` | `yes` attests a human verified backup (does **not** create a backup)                   |
-| `TAKIIA_DB_BACKUP_PATH`    | Must pass `lib/validate-db-backup.sh` (restorable `pg_restore --list` or plain SQL)    |
-| `TAKIIA_DB_BACKUP_PATH`    | Absolute path to a **non-empty** dump file when migrations are pending                 |
+| `TAKIIA_DB_BACKUP_PATH`    | Non-empty dump under `/var/backups/takiia/`; must pass migrate-gate validation         |
+| `TAKIIA_CONFIRM_EMPTY_DATABASE_BASELINE` | `yes` only with verified empty `takiia_db` + pre-migrate empty-catalog dump (see `docs/production-database-first-deploy.md`) |
 | `TAKIIA_ECOSYSTEM_CONFIG`  | PM2 ecosystem file path                                                                |
 | `TAKIIA_EXPECTED_SHA`      | Same as `TAKIIA_DEPLOY_SHA` for `verify-deploy.sh`                                     |
 
