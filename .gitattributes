@@ -1,1 +1,4 @@
-scripts/deploy/*.sh text eol=lf
+# Ensure shell scripts and workflow hooks use LF on all platforms (production deploy runs on Linux).
+*.sh text eol=lf
+scripts/** text eol=lf
+.github/workflows/* text eol=lf
