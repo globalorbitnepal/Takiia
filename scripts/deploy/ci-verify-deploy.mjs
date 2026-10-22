@@ -2,7 +2,7 @@
  * Offline tests for verify-deploy.sh (no production SSH or credentials).
  * Full bash integration runs on Linux CI; Windows runs unit checks only.
  */
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -17,6 +17,17 @@ import {
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const verifyScript = join(scriptDir, 'verify-deploy.sh');
+
+function toBashPath(filePath) {
+  if (process.platform !== 'win32') {
+    return filePath;
+  }
+  const match = /^([A-Za-z]):[\\/](.*)$/.exec(filePath);
+  if (!match) {
+    return filePath;
+  }
+  return `/${match[1].toLowerCase()}/${match[2].replace(/\\/g, '/')}`;
+}
 
 const LEGACY_HOME = `<!DOCTYPE html><html><body><main><h1>Takiia</h1><p>Starter web app for messaging and calling. Authentication and chat are not enabled yet.</p><section class="card" aria-label="Local development"><dd>http://localhost:4000/health</dd></section></main><script src="/_next/static/chunks/main.js"></script></body></html>`;
 
@@ -115,19 +126,35 @@ function startFixtureServer(commit, homeHtml) {
   });
 }
 
-function runVerifyDeploy(bashExecutable, appRoot, sha, origin, ciEnvFile) {
-  return spawnSync(bashExecutable, [verifyScript], {
-    env: {
-      ...process.env,
-      ...gitEnv,
-      TAKIIA_CI_ENV_FILE: ciEnvFile,
-      TAKIIA_APP_ROOT: appRoot,
-      TAKIIA_EXPECTED_SHA: sha,
-      TAKIIA_API_VERIFY_ORIGIN: origin,
-      TAKIIA_WEB_VERIFY_ORIGIN: origin,
-    },
-    encoding: 'utf8',
-    timeout: 120_000,
+function runVerifyDeploy(bashExecutable, bashAppRoot, sha, origin, ciEnvFile) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(bashExecutable, [verifyScript], {
+      env: {
+        ...process.env,
+        ...gitEnv,
+        TAKIIA_CI_ENV_FILE: toBashPath(ciEnvFile),
+        TAKIIA_APP_ROOT: bashAppRoot,
+        TAKIIA_EXPECTED_SHA: sha,
+        TAKIIA_API_VERIFY_ORIGIN: origin,
+        TAKIIA_WEB_VERIFY_ORIGIN: origin,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
+    child.on('error', reject);
+    child.on('close', (code, signal) => {
+      resolve({ status: code, signal, stdout, stderr });
+    });
   });
 }
 
@@ -150,11 +177,12 @@ async function withFixture(bashExecutable, homeHtml, expectSuccess) {
   );
 
   const { server, origin } = await startFixtureServer(sha, homeHtml);
+  const bashAppRoot = toBashPath(appRoot);
   const ciEnvFile = join(appRoot, '.verify-deploy.ci.env');
   writeFileSync(
     ciEnvFile,
     [
-      `TAKIIA_APP_ROOT=${appRoot}`,
+      `TAKIIA_APP_ROOT=${bashAppRoot}`,
       `TAKIIA_EXPECTED_SHA=${sha}`,
       `TAKIIA_API_VERIFY_ORIGIN=${origin}`,
       `TAKIIA_WEB_VERIFY_ORIGIN=${origin}`,
@@ -162,7 +190,7 @@ async function withFixture(bashExecutable, homeHtml, expectSuccess) {
     'utf8',
   );
   try {
-    const result = runVerifyDeploy(bashExecutable, appRoot, sha, origin, ciEnvFile);
+    const result = await runVerifyDeploy(bashExecutable, bashAppRoot, sha, origin, ciEnvFile);
     const ok = result.status === 0;
     if (expectSuccess && !ok) {
       console.error(
