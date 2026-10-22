@@ -8,7 +8,7 @@ Last updated from autonomous engineering pass. No secrets in this file.
 | ----------------------- | ------------------------------------ | ---------------------------------------------------- |
 | Deploy order fix branch | `fix/deploy-prisma-before-api-build` | `remote-deploy.sh` generates Prisma before API build |
 | `main` deploy script    | Build before generate/migrate        | `git show main:scripts/deploy/remote-deploy.sh`      |
-| Local hardening commit  | See git log on feature branch        | Backup scripts, ops docs, deploy-order tests         |
+| Feature branch HEAD     | `651fa71` (pushed to origin)         | Deploy fix + backup scripts, tests, ops docs          |
 
 ## Production (read-only SSH)
 
