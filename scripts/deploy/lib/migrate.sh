@@ -32,10 +32,10 @@ takiia_prisma_migrate_pending() {
     return 1
   fi
 
+  # Keep errexit off for intentional return codes (return 1 = up to date must not abort the deploy script).
   set +e
   status_output="$(cd "${app_root}/apps/api" && npx prisma migrate status 2>&1)"
   status_code=$?
-  set -e
 
   if [[ "${status_code}" -eq 0 ]]; then
     if echo "${status_output}" | grep -qi 'database schema is up to date'; then
