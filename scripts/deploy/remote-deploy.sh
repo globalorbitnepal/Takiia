@@ -16,6 +16,8 @@ source "${SCRIPT_DIR}/lib/migrate.sh"
 source "${SCRIPT_DIR}/lib/pm2-takiia.sh"
 # shellcheck source=lib/write-deploy-metadata.sh
 source "${SCRIPT_DIR}/lib/write-deploy-metadata.sh"
+# shellcheck source=lib/validate-db-backup.sh
+source "${SCRIPT_DIR}/lib/validate-db-backup.sh"
 
 if [[ "$(whoami)" != "takiia" ]]; then
   echo "::error::remote-deploy.sh must run as user takiia"
@@ -78,6 +80,9 @@ if [[ -n "${DATABASE_URL:-}" ]]; then
     esac
     if printf '%s' "${TAKIIA_DB_BACKUP_PATH}" | grep -qE '[`$;|&><()]'; then
       echo "::error::TAKIIA_DB_BACKUP_PATH contains disallowed characters."
+      exit 1
+    fi
+    if ! takiia_validate_db_backup_file "${TAKIIA_DB_BACKUP_PATH}"; then
       exit 1
     fi
     echo "Applying Prisma migrations (pending migrations detected)..."

@@ -10,6 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { homepageIsLegacyStarter } from './lib/legacy-homepage.mjs';
+import {
+  detectPostgresBackupFormat,
+  postgresBackupContentsLookRestorable,
+} from './lib/validate-db-backup.mjs';
 
 const scriptDir = fileURLToPath(new URL('.', import.meta.url));
 const verifyScript = join(scriptDir, 'verify-deploy.sh');
@@ -19,6 +23,15 @@ const LEGACY_HOME = `<!DOCTYPE html><html><body><main><h1>Takiia</h1><p>Starter 
 const MODERN_HOME = `<!DOCTYPE html><html><body><div class="hero">Marketing workspace</div><script src="/_next/static/chunks/main.js"></script></body></html>`;
 
 function runUnitTests() {
+  if (detectPostgresBackupFormat('PGDMP') !== 'pg_custom') {
+    throw new Error('expected PGDMP custom backup format');
+  }
+  if (!postgresBackupContentsLookRestorable('; 1 2 TABLE public plans postgres\n')) {
+    throw new Error('expected TABLE entry in pg_restore list');
+  }
+  if (postgresBackupContentsLookRestorable(';\n')) {
+    throw new Error('empty pg_restore list should not validate');
+  }
   if (!homepageIsLegacyStarter(LEGACY_HOME)) {
     throw new Error('legacy homepage fixture should be detected');
   }
@@ -102,24 +115,31 @@ function startFixtureServer(commit, homeHtml) {
   });
 }
 
+function shellSingleQuote(value) {
+  return `'${String(value).replace(/'/g, `'\\''`)}'`;
+}
+
 function runVerifyDeploy(bashExecutable, appRoot, sha, origin) {
-  return spawnSync(bashExecutable, [verifyScript], {
-    env: {
-      ...process.env,
-      TAKIIA_APP_ROOT: appRoot,
-      TAKIIA_EXPECTED_SHA: sha,
-      TAKIIA_API_VERIFY_ORIGIN: origin,
-      TAKIIA_WEB_VERIFY_ORIGIN: origin,
-    },
+  const command = [
+    `export TAKIIA_APP_ROOT=${shellSingleQuote(appRoot)}`,
+    `export TAKIIA_EXPECTED_SHA=${shellSingleQuote(sha)}`,
+    `export TAKIIA_API_VERIFY_ORIGIN=${shellSingleQuote(origin)}`,
+    `export TAKIIA_WEB_VERIFY_ORIGIN=${shellSingleQuote(origin)}`,
+    `exec bash ${shellSingleQuote(verifyScript)}`,
+  ].join(' && ');
+
+  return spawnSync(bashExecutable, ['-c', command], {
+    env: gitEnv,
     encoding: 'utf8',
-    timeout: 15_000,
+    timeout: 120_000,
   });
 }
 
 async function withFixture(bashExecutable, homeHtml, expectSuccess) {
   const appRoot = join(tmpdir(), `takiia-verify-deploy-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   mkdirSync(appRoot, { recursive: true });
-  runGit(appRoot, ['init']);
+  runGit(appRoot, ['init', '-b', 'main']);
+  runGit(appRoot, ['config', 'safe.directory', appRoot]);
   runGit(appRoot, ['config', 'user.email', 'ci@takiia.local']);
   runGit(appRoot, ['config', 'user.name', 'Takiia CI']);
   runGit(appRoot, ['commit', '--allow-empty', '-m', 'ci fixture']);
@@ -157,7 +177,9 @@ async function withFixture(bashExecutable, homeHtml, expectSuccess) {
 runUnitTests();
 
 const bashExecutable = resolveBashExecutable();
-const runBashIntegration = process.platform === 'linux' && bashExecutable;
+const runBashIntegration =
+  bashExecutable &&
+  (process.platform === 'linux' || process.env.FORCE_VERIFY_DEPLOY_INTEGRATION === '1');
 
 if (runBashIntegration) {
   await withFixture(bashExecutable, MODERN_HOME, true);

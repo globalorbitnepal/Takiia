@@ -23,6 +23,7 @@ Shell scripts are invoked as `bash scripts/deploy/<name>.sh` in CI and GitHub Ac
 | `TAKIIA_ENFORCE_MAIN_ONLY` | `1` requires `TAKIIA_DEPLOY_SHA` and blocks non-`main` `TAKIIA_DEPLOY_REF`             |
 | `TAKIIA_SKIP_GIT_SYNC`     | `1` when `git-sync.sh` already ran (GitHub Actions)                                    |
 | `TAKIIA_CONFIRM_DB_BACKUP` | `yes` attests a human verified backup (does **not** create a backup)                   |
+| `TAKIIA_DB_BACKUP_PATH`    | Must pass `lib/validate-db-backup.sh` (restorable `pg_restore --list` or plain SQL)    |
 | `TAKIIA_DB_BACKUP_PATH`    | Absolute path to a **non-empty** dump file when migrations are pending                 |
 | `TAKIIA_ECOSYSTEM_CONFIG`  | PM2 ecosystem file path                                                                |
 | `TAKIIA_EXPECTED_SHA`      | Same as `TAKIIA_DEPLOY_SHA` for `verify-deploy.sh`                                     |

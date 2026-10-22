@@ -14,7 +14,8 @@ for rel in \
   lib/load-env.sh \
   lib/migrate.sh \
   lib/pm2-takiia.sh \
-  lib/database.sh; do
+  lib/database.sh \
+  lib/validate-db-backup.sh; do
   path="${SCRIPT_DIR}/${rel}"
   head -n 1 "${path}" | grep -q '^#!/usr/bin/env bash$'
   bash -n "${path}"

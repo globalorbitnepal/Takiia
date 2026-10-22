@@ -53,7 +53,7 @@ else
 fi
 
 echo "Checking API health includes deploy commit..."
-api_body="$(curl -fsS "${API_ORIGIN}/health")"
+api_body="$(curl -fsS --connect-timeout 5 --max-time 15 "${API_ORIGIN}/health")"
 if ! echo "${api_body}" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
   echo "::error::API health response invalid"
   exit 1
@@ -64,20 +64,20 @@ if ! echo "${api_body}" | grep -q "\"commit\"[[:space:]]*:[[:space:]]*\"${EXPECT
 fi
 
 echo "Checking Web health includes deploy commit..."
-web_body="$(curl -fsS "${WEB_ORIGIN}/api/health")"
+web_body="$(curl -fsS --connect-timeout 5 --max-time 15 "${WEB_ORIGIN}/api/health")"
 if ! echo "${web_body}" | grep -q "\"commit\"[[:space:]]*:[[:space:]]*\"${EXPECTED_SHA}\""; then
   echo "::error::Web health does not report expected commit (PM2 may still be serving an old Next.js build)"
   exit 1
 fi
 
 echo "Checking marketing routes respond (current app, not legacy starter-only build)..."
-pricing_code="$(curl -sS -o /dev/null -w '%{http_code}' "${WEB_ORIGIN}/pricing")"
+pricing_code="$(curl -sS --connect-timeout 5 --max-time 15 -o /dev/null -w '%{http_code}' "${WEB_ORIGIN}/pricing")"
 if [[ "${pricing_code}" != "200" ]]; then
   echo "::error::GET /pricing returned ${pricing_code}; expected 200 for current marketing site"
   exit 1
 fi
 
-home_body="$(curl -fsS "${WEB_ORIGIN}/")"
+home_body="$(curl -fsS --connect-timeout 5 --max-time 15 "${WEB_ORIGIN}/")"
 if takiia_homepage_is_legacy_starter "${home_body}"; then
   echo "::error::Homepage matches legacy starter build markers; deploy did not update the running web build"
   exit 1

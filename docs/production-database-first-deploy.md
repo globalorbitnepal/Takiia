@@ -8,7 +8,7 @@
 - Production `takiia_db` was reported **without application tables**; an existing **892-byte** `pg_dump` archive had **no table TOC entries** and is **not** a verified recovery backup.
 - `remote-deploy.sh` applies migrations only when `prisma migrate status` reports pending changes, and only if:
   - `TAKIIA_CONFIRM_DB_BACKUP=yes`, and
-  - `TAKIIA_DB_BACKUP_PATH` points to a **non-empty** file under `/var/backups/takiia/`.
+  - `TAKIIA_DB_BACKUP_PATH` points to a file under `/var/backups/takiia/` that passes **`validate-db-backup`** (custom `PGDMP` dump with restorable `pg_restore --list` TOC entries, or plain SQL with `CREATE TABLE` / schema markers). Non-empty but invalid dumps (e.g. 892-byte empty archives) are rejected.
 
 See `scripts/deploy/remote-deploy.sh` (migration block) and `scripts/deploy/lib/migrate.sh`.
 
