@@ -13,7 +13,8 @@ Public: `https://takiia.com`, API `https://api.takiia.com`
    Never disable `StrictHostKeyChecking`.
 3. Production deploy SSH key (local, not in repo):  
    `%USERPROFILE%\.ssh\github-actions-globalorbitnepal` as user `takiia`.
-4. Check tooling: `git`, `ssh`, `gh` (optional but recommended for PR/Actions without browser).
+4. Check tooling: `git`, `ssh`, `gh`. On Windows, if `gh` is not found, use  
+   `C:\Program Files\GitHub CLI\gh.exe` or add that folder to your **User** `PATH` (Cursor shells may need a restart).
 
 ## Normal development
 
@@ -70,7 +71,7 @@ If any gate fails, stop before production writes and report the blocker.
 
 ## GitHub without browser
 
-- Install [GitHub CLI](https://cli.github.com/): `winget install GitHub.cli`, then `gh auth login`.
+- [GitHub CLI](https://cli.github.com/) is installed at `C:\Program Files\GitHub CLI` on this machine; run `gh auth login` once per account.
 - Create PR: `gh pr create --base main --head <branch>`.
 - Watch CI: `gh pr checks`, `gh run watch`.
 - Dispatch deploy: `gh workflow run deploy-production.yml --ref main`.
