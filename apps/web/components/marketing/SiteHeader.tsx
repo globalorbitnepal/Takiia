@@ -61,9 +61,7 @@ export function SiteHeader() {
                 type="button"
                 className="nav-link nav-link-dropdown"
                 aria-expanded={openDropdown === group.label}
-                onClick={() =>
-                  setOpenDropdown((v) => (v === group.label ? null : group.label))
-                }
+                onClick={() => setOpenDropdown((v) => (v === group.label ? null : group.label))}
               >
                 {group.label}
                 <Chevron />
