@@ -3,7 +3,8 @@ import { FeaturePageLayout } from '../../../components/marketing/FeaturePageLayo
 
 export const metadata: Metadata = {
   title: 'Online meetings',
-  description: 'Meeting scheduling and in-app call flows. Group media capabilities are still maturing.',
+  description:
+    'Meeting scheduling and in-app call flows. Group media capabilities are still maturing.',
 };
 
 export default function MeetingsFeaturePage() {
@@ -28,7 +29,9 @@ export default function MeetingsFeaturePage() {
       ctaLabel="Explore meetings"
       preview={
         <div className="meeting-preview card" style={{ padding: '1rem', background: '#fff' }}>
-          <p className="eyebrow" style={{ fontSize: 10 }}>Demo tile layout</p>
+          <p className="eyebrow" style={{ fontSize: 10 }}>
+            Demo tile layout
+          </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
             {['You', 'Guest'].map((label) => (
               <div

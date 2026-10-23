@@ -15,17 +15,19 @@ export default function CookiesPage() {
         <h1 className="h1">Cookie policy</h1>
         <p className="muted">
           <strong>Owner review required.</strong> This draft describes typical SaaS cookie usage for
-          Takiia. Have qualified counsel adapt it to your jurisdiction and actual tracking practices.
+          Takiia. Have qualified counsel adapt it to your jurisdiction and actual tracking
+          practices.
         </p>
         <h2 className="h2">Essential cookies</h2>
         <p className="muted">
-          Session and CSRF cookies support authentication and secure API requests. These are required
-          for the signed-in product to function.
+          Session and CSRF cookies support authentication and secure API requests. These are
+          required for the signed-in product to function.
         </p>
         <h2 className="h2">Analytics</h2>
         <p className="muted">
-          If you add analytics providers later, update this policy and any consent banners accordingly.
-          The default open-source deployment does not include third-party marketing trackers.
+          If you add analytics providers later, update this policy and any consent banners
+          accordingly. The default open-source deployment does not include third-party marketing
+          trackers.
         </p>
       </div>
     </MarketingShell>

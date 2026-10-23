@@ -5,7 +5,8 @@ import { MarketingShell } from '../../components/marketing/MarketingShell';
 
 export const metadata: Metadata = {
   title: 'Integrations',
-  description: 'Facebook, Instagram, and TikTok connection status and setup requirements for Takiia.',
+  description:
+    'Facebook, Instagram, and TikTok connection status and setup requirements for Takiia.',
 };
 
 const integrations = [
@@ -36,8 +37,8 @@ export default function IntegrationsPage() {
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Integrations' }]} />
         <h1 className="h1">Connect the platforms you already use</h1>
         <p className="marketing-lead">
-          Takiia integrates through official APIs only—no scraping and no password collection. Status
-          below reflects the current codebase, not marketing claims.
+          Takiia integrates through official APIs only—no scraping and no password collection.
+          Status below reflects the current codebase, not marketing claims.
         </p>
         <div className="integration-grid">
           {integrations.map((item) => (
@@ -46,12 +47,16 @@ export default function IntegrationsPage() {
                 <h2 style={{ margin: 0 }}>{item.name}</h2>
                 <span className="status-pill">{item.status}</span>
               </div>
-              <p className="muted" style={{ marginBottom: 0 }}>{item.detail}</p>
+              <p className="muted" style={{ marginBottom: 0 }}>
+                {item.detail}
+              </p>
             </article>
           ))}
         </div>
         <p style={{ marginTop: '2rem' }}>
-          <Link className="btn" href="/features/social-media">Social media features</Link>
+          <Link className="btn" href="/features/social-media">
+            Social media features
+          </Link>
         </p>
       </div>
     </MarketingShell>

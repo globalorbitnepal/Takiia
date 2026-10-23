@@ -12,12 +12,7 @@ export default function SolutionsTeamsPage() {
   return (
     <MarketingShell>
       <div className="container marketing-page">
-        <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Solutions' },
-          ]}
-        />
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Solutions' }]} />
         <h1 className="h1">One workspace for your whole team</h1>
         <p className="marketing-lead">
           Invite members, assign roles, and keep conversations and social schedules inside a single
@@ -30,9 +25,15 @@ export default function SolutionsTeamsPage() {
           <li>Collaborative social scheduling with queue visibility</li>
         </ul>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
-          <Link className="btn" href="/signup">Start a workspace</Link>
-          <Link className="btn secondary" href="/solutions/agencies">Agencies</Link>
-          <Link className="btn secondary" href="/solutions/individuals">Individuals</Link>
+          <Link className="btn" href="/signup">
+            Start a workspace
+          </Link>
+          <Link className="btn secondary" href="/solutions/agencies">
+            Agencies
+          </Link>
+          <Link className="btn secondary" href="/solutions/individuals">
+            Individuals
+          </Link>
         </div>
       </div>
     </MarketingShell>

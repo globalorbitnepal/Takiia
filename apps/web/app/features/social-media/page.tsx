@@ -3,7 +3,8 @@ import { FeaturePageLayout } from '../../../components/marketing/FeaturePageLayo
 
 export const metadata: Metadata = {
   title: 'Social media management',
-  description: 'Connect Facebook, Instagram, and TikTok via official OAuth. Schedule posts and track publish jobs.',
+  description:
+    'Connect Facebook, Instagram, and TikTok via official OAuth. Schedule posts and track publish jobs.',
 };
 
 export default function SocialFeaturePage() {
@@ -29,9 +30,14 @@ export default function SocialFeaturePage() {
       ctaLabel="Explore social publishing"
       preview={
         <div style={{ fontSize: 13 }}>
-          <div className="card" style={{ padding: '0.65rem', marginBottom: '0.5rem', background: '#fff' }}>
+          <div
+            className="card"
+            style={{ padding: '0.65rem', marginBottom: '0.5rem', background: '#fff' }}
+          >
             <strong>Composer</strong>
-            <p className="muted" style={{ margin: '0.25rem 0 0' }}>Instagram · Scheduled Thu 15:00</p>
+            <p className="muted" style={{ margin: '0.25rem 0 0' }}>
+              Instagram · Scheduled Thu 15:00
+            </p>
           </div>
           <div className="card" style={{ padding: '0.65rem', background: 'var(--panel-2)' }}>
             Queue: 2 scheduled · 1 publishing · 0 failed (demo)

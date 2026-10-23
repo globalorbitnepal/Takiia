@@ -3,7 +3,8 @@ import { FeaturePageLayout } from '../../../components/marketing/FeaturePageLayo
 
 export const metadata: Metadata = {
   title: 'Teams & workspaces',
-  description: 'Shared workspaces with roles, invitations, and isolated billing and social accounts.',
+  description:
+    'Shared workspaces with roles, invitations, and isolated billing and social accounts.',
 };
 
 export default function TeamsFeaturePage() {

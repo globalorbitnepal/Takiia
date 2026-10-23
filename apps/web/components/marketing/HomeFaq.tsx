@@ -54,7 +54,9 @@ export function HomeFaq() {
           {faqItems.map((item) => (
             <details key={item.q} className="card" style={{ padding: '1rem' }}>
               <summary>{item.q}</summary>
-              <p className="muted" style={{ marginBottom: 0 }}>{item.a}</p>
+              <p className="muted" style={{ marginBottom: 0 }}>
+                {item.a}
+              </p>
             </details>
           ))}
         </div>

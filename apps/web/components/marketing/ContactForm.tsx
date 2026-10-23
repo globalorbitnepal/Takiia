@@ -63,7 +63,9 @@ export function ContactForm() {
         {status === 'loading' ? 'Sending…' : 'Send message'}
       </button>
       {message ? (
-        <p className={status === 'error' ? 'form-error' : 'form-success'} role="status">{message}</p>
+        <p className={status === 'error' ? 'form-error' : 'form-success'} role="status">
+          {message}
+        </p>
       ) : null}
     </form>
   );

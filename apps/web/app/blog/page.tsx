@@ -19,7 +19,9 @@ export default function BlogIndexPage() {
           placeholder author profiles.
         </p>
         <p>
-          <Link className="btn secondary" href="/help">Browse help topics</Link>
+          <Link className="btn secondary" href="/help">
+            Browse help topics
+          </Link>
         </p>
       </div>
     </MarketingShell>

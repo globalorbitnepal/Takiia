@@ -15,7 +15,9 @@ export function CapabilityStrip() {
       <div className="container capability-strip-inner">
         {items.map((item) => (
           <div key={item.label} className="capability-pill glass">
-            <span className="capability-icon" aria-hidden>{item.icon}</span>
+            <span className="capability-icon" aria-hidden>
+              {item.icon}
+            </span>
             <span className="capability-label">{item.label}</span>
           </div>
         ))}

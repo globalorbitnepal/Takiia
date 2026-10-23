@@ -30,7 +30,9 @@ export default function SolutionsIndividualsPage() {
           <li>Schedule posts with clear quota meters</li>
           <li>Upgrade when you need more capacity or team members</li>
         </ul>
-        <Link className="btn" href="/signup">Get started</Link>
+        <Link className="btn" href="/signup">
+          Get started
+        </Link>
       </div>
     </MarketingShell>
   );

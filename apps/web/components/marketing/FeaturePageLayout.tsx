@@ -43,7 +43,9 @@ export function FeaturePageLayout({
               ))}
             </ul>
             {honestyNote ? <p className="honesty-note">{honestyNote}</p> : null}
-            <Link className="btn" href={ctaHref}>{ctaLabel}</Link>
+            <Link className="btn" href={ctaHref}>
+              {ctaLabel}
+            </Link>
           </div>
           {preview ? <div className="card glass marketing-preview-panel">{preview}</div> : null}
         </div>
@@ -54,7 +56,9 @@ export function FeaturePageLayout({
               {faq.map((item) => (
                 <details key={item.question} className="card" style={{ padding: '1rem' }}>
                   <summary>{item.question}</summary>
-                  <p className="muted" style={{ marginBottom: 0 }}>{item.answer}</p>
+                  <p className="muted" style={{ marginBottom: 0 }}>
+                    {item.answer}
+                  </p>
                 </details>
               ))}
             </div>

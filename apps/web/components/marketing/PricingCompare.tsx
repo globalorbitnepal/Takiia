@@ -6,7 +6,13 @@ export function PricingCompare() {
     ['Social accounts', 'Per plan DB limits', 'Per plan', 'Per plan', 'Per plan'],
     ['Scheduled posts / month', 'Per plan', 'Per plan', 'Per plan', 'Per plan'],
     ['Team members', 'Per plan', 'Per plan', 'Per plan', 'Per plan'],
-    ['Meetings / calls', 'Plan allowances', 'Plan allowances', 'Plan allowances', 'Plan allowances'],
+    [
+      'Meetings / calls',
+      'Plan allowances',
+      'Plan allowances',
+      'Plan allowances',
+      'Plan allowances',
+    ],
     ['Analytics', 'Where API data exists', 'Basic', 'Advanced', 'Advanced'],
   ];
 

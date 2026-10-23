@@ -4,7 +4,8 @@ import { MessagingPreview } from '../../../components/marketing/previews/Messagi
 
 export const metadata: Metadata = {
   title: 'Team messaging',
-  description: 'Built-in direct and group messaging with attachments, read state, and workspace security.',
+  description:
+    'Built-in direct and group messaging with attachments, read state, and workspace security.',
 };
 
 export default function MessagingFeaturePage() {

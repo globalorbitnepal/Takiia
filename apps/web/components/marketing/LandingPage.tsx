@@ -55,10 +55,12 @@ export function LandingPage() {
             <div>
               <h2 className="h2">One Workspace. A Clearer Way to Work.</h2>
               <p className="muted">
-                Signed-in customers see live inbox, subscription usage, events, and social queue data.
-                The preview opposite uses fictional demo data only.
+                Signed-in customers see live inbox, subscription usage, events, and social queue
+                data. The preview opposite uses fictional demo data only.
               </p>
-              <Link className="btn" href="/app">Open dashboard</Link>
+              <Link className="btn" href="/app">
+                Open dashboard
+              </Link>
             </div>
             <DashboardPreview />
           </div>
@@ -131,7 +133,9 @@ export function LandingPage() {
               group meetings, screen sharing, and verified TURN/LiveKit routing are still being
               hardened — not claimed as complete Zoom-class meetings yet.
             </p>
-            <Link className="btn" href="/features/meetings">Explore Meetings</Link>
+            <Link className="btn" href="/features/meetings">
+              Explore Meetings
+            </Link>
           </div>
         </section>
 
@@ -155,7 +159,9 @@ export function LandingPage() {
             <p className="muted">
               Workspaces isolate billing, social accounts, and scheduled posts per team.
             </p>
-            <Link className="btn" href="/features/teams">Explore Teams</Link>
+            <Link className="btn" href="/features/teams">
+              Explore Teams
+            </Link>
           </div>
         </section>
 
@@ -175,7 +181,9 @@ export function LandingPage() {
             <p className="muted">
               Validated uploads, storage quotas by plan, and authenticated downloads.
             </p>
-            <Link className="btn" href="/features/file-sharing">Explore File Sharing</Link>
+            <Link className="btn" href="/features/file-sharing">
+              Explore File Sharing
+            </Link>
           </div>
         </section>
 
@@ -186,7 +194,9 @@ export function LandingPage() {
               Plans and limits load from your database configuration—see full comparison on the
               pricing page.
             </p>
-            <Link className="btn" href="/pricing">View Pricing</Link>
+            <Link className="btn" href="/pricing">
+              View Pricing
+            </Link>
           </div>
         </section>
 
@@ -210,7 +220,9 @@ export function LandingPage() {
               <li>Instagram — via Meta APIs; requires approval</li>
               <li>TikTok — structure ready; requires developer app</li>
             </ul>
-            <Link className="btn secondary" href="/integrations">Integration directory</Link>
+            <Link className="btn secondary" href="/integrations">
+              Integration directory
+            </Link>
           </div>
         </section>
 
@@ -234,8 +246,8 @@ export function LandingPage() {
           <div className="container">
             <h2 className="h2">Bring Your Conversations and Workflows Together.</h2>
             <p className="muted">
-              Manage your communication, meetings, team collaboration and social publishing from
-              one organized workspace.
+              Manage your communication, meetings, team collaboration and social publishing from one
+              organized workspace.
             </p>
             <Link className="btn" href="/signup">
               Get Started

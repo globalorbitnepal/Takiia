@@ -18,25 +18,33 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <p className="eyebrow" style={{ fontSize: 11 }}>Product</p>
+          <p className="eyebrow" style={{ fontSize: 11 }}>
+            Product
+          </p>
           <Link href="/features">Features</Link>
           <Link href="/integrations">Integrations</Link>
           <Link href="/pricing">Pricing</Link>
         </div>
         <div>
-          <p className="eyebrow" style={{ fontSize: 11 }}>Solutions</p>
+          <p className="eyebrow" style={{ fontSize: 11 }}>
+            Solutions
+          </p>
           <Link href="/solutions/individuals">Individuals</Link>
           <Link href="/solutions/teams">Teams</Link>
           <Link href="/solutions/agencies">Agencies</Link>
         </div>
         <div>
-          <p className="eyebrow" style={{ fontSize: 11 }}>Resources</p>
+          <p className="eyebrow" style={{ fontSize: 11 }}>
+            Resources
+          </p>
           <Link href="/help">Help</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/contact">Contact</Link>
         </div>
         <div>
-          <p className="eyebrow" style={{ fontSize: 11 }}>Legal</p>
+          <p className="eyebrow" style={{ fontSize: 11 }}>
+            Legal
+          </p>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/cookies">Cookies</Link>

@@ -5,7 +5,8 @@ import { MarketingShell } from '../../components/marketing/MarketingShell';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Contact the Takiia team. Messages are delivered when CONTACT_INBOX_EMAIL is configured.',
+  description:
+    'Contact the Takiia team. Messages are delivered when CONTACT_INBOX_EMAIL is configured.',
 };
 
 export default function ContactPage() {

@@ -29,19 +29,21 @@ export default function PricingPage() {
             <details className="card" style={{ padding: '1rem', marginBottom: '0.5rem' }}>
               <summary>How do yearly prices work?</summary>
               <p className="muted" style={{ marginBottom: 0 }}>
-                Annual discounts are applied only when configured in the billing system—do not assume
-                a percentage until it is set in plan data.
+                Annual discounts are applied only when configured in the billing system—do not
+                assume a percentage until it is set in plan data.
               </p>
             </details>
             <details className="card" style={{ padding: '1rem' }}>
               <summary>Which payment methods are supported?</summary>
               <p className="muted" style={{ marginBottom: 0 }}>
-                Depends on the configured payment provider and your legal entity. Live checkout requires
-                provider credentials.
+                Depends on the configured payment provider and your legal entity. Live checkout
+                requires provider credentials.
               </p>
             </details>
             <div style={{ marginTop: '2rem' }}>
-              <Link className="btn" href="/signup">Get Started</Link>
+              <Link className="btn" href="/signup">
+                Get Started
+              </Link>
             </div>
           </div>
         </section>

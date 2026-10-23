@@ -5,7 +5,8 @@ import { Breadcrumbs } from '../../../components/marketing/Breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'For agencies',
-  description: 'Multiple workspaces, higher social account limits, and team permissions for client work.',
+  description:
+    'Multiple workspaces, higher social account limits, and team permissions for client work.',
 };
 
 export default function SolutionsAgenciesPage() {
@@ -34,7 +35,9 @@ export default function SolutionsAgenciesPage() {
           Client approval workflows and white-label reporting are not included unless implemented in
           your deployment.
         </p>
-        <Link className="btn" href="/pricing">View agency limits</Link>
+        <Link className="btn" href="/pricing">
+          View agency limits
+        </Link>
       </div>
     </MarketingShell>
   );

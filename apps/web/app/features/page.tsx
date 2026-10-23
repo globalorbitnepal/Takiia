@@ -10,12 +10,32 @@ export const metadata: Metadata = {
 };
 
 const features = [
-  { href: '/features/messaging', title: 'Messaging', desc: 'Direct and group conversations with attachments.' },
-  { href: '/features/meetings', title: 'Meetings', desc: 'Scheduled meetings and call flows where enabled.' },
-  { href: '/features/social-media', title: 'Social media', desc: 'OAuth connections, scheduling, and publish queue.' },
+  {
+    href: '/features/messaging',
+    title: 'Messaging',
+    desc: 'Direct and group conversations with attachments.',
+  },
+  {
+    href: '/features/meetings',
+    title: 'Meetings',
+    desc: 'Scheduled meetings and call flows where enabled.',
+  },
+  {
+    href: '/features/social-media',
+    title: 'Social media',
+    desc: 'OAuth connections, scheduling, and publish queue.',
+  },
   { href: '/features/teams', title: 'Teams', desc: 'Workspaces, roles, and shared activity.' },
-  { href: '/features/calendar', title: 'Calendar', desc: 'Meetings, posts, and team events together.' },
-  { href: '/features/file-sharing', title: 'File sharing', desc: 'Authenticated downloads and storage quotas.' },
+  {
+    href: '/features/calendar',
+    title: 'Calendar',
+    desc: 'Meetings, posts, and team events together.',
+  },
+  {
+    href: '/features/file-sharing',
+    title: 'File sharing',
+    desc: 'Authenticated downloads and storage quotas.',
+  },
 ];
 
 export default function FeaturesOverviewPage() {
@@ -31,13 +51,19 @@ export default function FeaturesOverviewPage() {
         <div className="feature-card-grid">
           {features.map((f) => (
             <Link key={f.href} href={f.href} className="card glass feature-card-link">
-              <h2 className="h2" style={{ fontSize: '1.35rem' }}>{f.title}</h2>
-              <p className="muted" style={{ marginBottom: 0 }}>{f.desc}</p>
+              <h2 className="h2" style={{ fontSize: '1.35rem' }}>
+                {f.title}
+              </h2>
+              <p className="muted" style={{ marginBottom: 0 }}>
+                {f.desc}
+              </p>
             </Link>
           ))}
         </div>
         <p style={{ marginTop: '2rem' }}>
-          <Link className="btn" href="/pricing">Compare plans</Link>
+          <Link className="btn" href="/pricing">
+            Compare plans
+          </Link>
         </p>
       </div>
     </MarketingShell>
