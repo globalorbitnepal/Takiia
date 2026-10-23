@@ -15,6 +15,7 @@ describe('remote-deploy.sh order', () => {
   it('rejects build-before-generate ordering', () => {
     const bad =
       'npm ci\nnpm run build --workspace @takiia/api\nnpm run db:generate --workspace @takiia/api\nBuilding (must succeed before PM2 start/reload)\ntakiia_write_deploy_metadata\npm2_takiia_start_or_reload_both';
+    expect(readFileSync(remoteDeployPath, 'utf8')).toContain('patch-takiia-web-ecosystem.mjs');
     expect(remoteDeployScriptOrderIsValid(bad)).toBe(false);
   });
 });

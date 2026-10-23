@@ -28,4 +28,7 @@ for rel in takiia-db-backup.sh takiia-restore-test.sh; do
   bash -n "${path}"
 done
 
+node --check "${SCRIPT_DIR}/start-web.cjs"
+node --check "${SCRIPT_DIR}/lib/patch-takiia-web-ecosystem.mjs"
+
 node "${SCRIPT_DIR}/ci-verify-deploy.mjs"

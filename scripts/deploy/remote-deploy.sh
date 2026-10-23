@@ -102,6 +102,16 @@ npm run build --workspace @takiia/web
 
 takiia_write_deploy_metadata "${APP_ROOT}"
 
+echo "Aligning Takiia web process (3034 wait_ready) without touching other PM2 apps..."
+patch_out="$(node "${SCRIPT_DIR}/lib/patch-takiia-web-ecosystem.mjs" "${ECOSYSTEM_CONFIG}")"
+echo "${patch_out}"
+if echo "${patch_out}" | grep -q '^STATUS=patched$'; then
+  if pm2_takiia_process_exists "takiia-web"; then
+    echo "Recreating takiia-web only so PM2 picks up start-web.cjs"
+    pm2 delete takiia-web
+  fi
+fi
+
 echo "Starting or reloading Takiia PM2 processes only..."
 pm2_takiia_start_or_reload_both "${ECOSYSTEM_CONFIG}"
 

@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
 
-export function MarketingShell({ children }: { children: React.ReactNode }) {
+export function MarketingShell({ children }: { children: ReactNode }) {
   return (
     <>
       <SiteHeader />

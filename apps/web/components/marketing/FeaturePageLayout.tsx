@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs, type Crumb } from './Breadcrumbs';
 import { MarketingShell } from './MarketingShell';
@@ -13,7 +14,7 @@ type FeaturePageLayoutProps = {
   ctaHref: string;
   ctaLabel: string;
   faq?: FaqItem[];
-  preview?: React.ReactNode;
+  preview?: ReactNode;
 };
 
 export function FeaturePageLayout({
