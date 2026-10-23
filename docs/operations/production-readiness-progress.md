@@ -1,55 +1,49 @@
 # Production readiness progress (verified outcomes)
 
-Evidence only ? no secrets. Last verified: **2026-10-23** after deploy of `7e96dd6`.
+Evidence only ? no secrets. Last verified: **2026-10-23** (PR #5 opened).
 
 ## Consolidated criteria
 
-| #   | Criterion                        | Status      | Evidence                                                                                                                      |
-| --- | -------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `origin/main` SHA                | **PASS**    | `7e96dd6287d03974e5a78286e41e2bdebb049ae9` (PR #3 merge)                                                                      |
-| 2   | CI on `7e96dd6`                  | **PASS**    | [run 39848346280](https://github.com/globalorbitnepal/Takiia/actions/runs/39848346280) success                                |
-| 3   | Production Git SHA               | **PASS**    | `/srv/apps/takiia` `git rev-parse` = `7e96dd6?` (2026-10-22T20:30Z deploy)                                                    |
-| 4   | `.deploy-metadata.json`          | **PASS**    | commit `7e96dd6?`, `deployedAt` `2026-10-22T20:30:09Z`                                                                        |
-| 5   | Public `/health` commit          | **PASS**    | API returns `commit` `7e96dd6?`                                                                                               |
-| 6   | `/health/ready` + DB             | **PASS**    | HTTP 200, `database: ok`                                                                                                      |
-| 7   | Pricing page                     | **PASS**    | HTTP 200                                                                                                                      |
-| 8   | Migrations                       | **PASS**    | `prisma migrate status`: up to date                                                                                           |
-| 9   | PM2 Takiia only                  | **PASS**    | `takiia-api`, `takiia-web` online after reload                                                                                |
-| 10  | SSH host fingerprint             | **PASS**    | ED25519 `SHA256:OcDdcR3jir76uLahlZtQfMcI+VOwgkiV2KdtT0P2U+s`                                                                  |
-| 11  | SSH deploy (documented scripts)  | **PASS**    | `git-sync` + `TAKIIA_SKIP_GIT_SYNC=1 remote-deploy` to `7e96dd6`; build + PM2 reload OK                                       |
-| 12  | `remote-deploy` health hook      | **FAIL**    | Exit 1: `lib/verify-health.sh` (SCRIPT_DIR clobbered by `validate-db-backup.sh`); manual `verify-health.sh` **PASS**          |
-| 13  | GitHub Actions Deploy Production | **NOT RUN** | No successful GA deploy on `7e96dd6`; auto deploy workflow **skipped**                                                        |
-| 14  | Verified manual DB backup        | **PASS**    | `takiia_db_backup_20261023_013309.dump`, `sha256sum -c` OK (85?967 B)                                                         |
-| 15  | Scheduled cron backup execution  | **NOT RUN** | Cron `15 2 * * *` UTC; server time at verify ~20:30 UTC Oct 22 ? first window not yet elapsed; `cron.log` not a scheduled run |
-| 16  | Off-site encrypted backup        | **BLOCKED** | `restic` missing; no approved destination/credentials                                                                         |
-| 17  | Isolated restore test            | **BLOCKED** | `takiia_app` cannot `CREATEDB`                                                                                                |
-| 18  | Upload FS path                   | **PASS**    | `/srv/apps/takiia/uploads` (prior probe)                                                                                      |
-| 19  | Upload API persistence           | **NOT RUN** | No authorized test account                                                                                                    |
-| 20  | Deploy SCRIPT_DIR fix            | **PENDING** | Branch `fix/deploy-script-dir-clobber` (not merged)                                                                           |
+| #   | Criterion                                | Status      | Evidence                                                                                                              |
+| --- | ---------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1   | `origin/main`                            | **PASS**    | `b68f49f3877ac7ad1261515195dbb056f139350e` (PR #4)                                                                    |
+| 2   | Production SHA                           | **PASS**    | `b68f49f?` ? matches main at last check                                                                               |
+| 3   | Health retry in git `main`               | **BLOCKED** | Fix on [PR #5](https://github.com/globalorbitnepal/Takiia/pull/5) `fix/verify-health-retry` ? **not merged**          |
+| 4   | Stock `remote-deploy` exit 0 (no hotfix) | **FAIL**    | Server `verify-health.sh` has hotfix (`wait_for_health`); git at `b68f49f` without retry until PR #5 merge + redeploy |
+| 5   | Last full deploy exit 0                  | **PASS**    | 2026-10-22 UTC with hotfixed `verify-health` + `verify-deploy` for `b68f49f`                                          |
+| 6   | CI on `b68f49f`                          | **PASS**    | [39850453991](https://github.com/globalorbitnepal/Takiia/actions/runs/39850453991)                                    |
+| 7   | CI on PR #5                              | **PASS**    | [39852315765](https://github.com/globalorbitnepal/Takiia/actions/runs/39852315765) on `a289313`                       |
+| 8   | Public health / ready / pricing          | **PASS**    | commit `b68f49f?`, DB ok, pricing 200                                                                                 |
+| 9   | Migrations                               | **PASS**    | up to date                                                                                                            |
+| 10  | PM2 Takiia only                          | **PASS**    | `takiia-api`, `takiia-web` online                                                                                     |
+| 11  | SSH fingerprint                          | **PASS**    | `SHA256:OcDdcR3jir76uLahlZtQfMcI+VOwgkiV2KdtT0P2U+s`                                                                  |
+| 12  | Verified manual backup                   | **PASS**    | `takiia_db_backup_20261023_013309.dump`, sha256 OK                                                                    |
+| 13  | Backup script executable                 | **PASS**    | `chmod +x` on `takiia-db-backup.sh`                                                                                   |
+| 14  | Scheduled cron backup                    | **NOT RUN** | Server ~20:46 UTC Oct 22; cron `15 2 * * *` UTC ? window not elapsed; `cron.log` shows old failed lines only          |
+| 15  | Off-site encrypted backup                | **BLOCKED** | `restic` missing; [off-site-backup-prerequisites.md](off-site-backup-prerequisites.md)                                |
+| 16  | Isolated restore test                    | **BLOCKED** | DBA / `CREATEDB` + empty `takiia_dr_test_*` ? not attempted without provisioning                                      |
+| 17  | Upload API persistence                   | **NOT RUN** | No authorized test account                                                                                            |
+| 18  | GA Deploy Production                     | **NOT RUN** | ?                                                                                                                     |
+| 19  | `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR`     | **WARN**    | See proxy note below                                                                                                  |
 
-**Overall:** Production runs merged deploy fixes at `7e96dd6`, but **not 100% production-ready** until scheduled backup proof, off-site copy, isolated restore, upload API test, GA deploy success, and SCRIPT_DIR fix merge/deploy.
+**Overall:** Not 100% ready until PR #5 merged, redeploy from merged `main` without hotfix, scheduled backup proof, off-site, restore test, upload API test.
 
-## Deploy notes (2026-10-22 UTC)
+## Health retry design (PR #5)
 
-- Server had hot-patched `migrate.sh`; stashed before `TAKIIA_DEPLOY_SHA=7e96dd6` sync.
-- Several `scripts/**/*.sh` on server still contained CRLF at verify time; `.gitattributes` on `main` limits recurrence.
-- `remote-deploy.sh` failed final step due to `SCRIPT_DIR` overwrite when sourcing `validate-db-backup.sh` (fix in flight).
+- Up to **30** attempts, **1s** apart; fails with `health check failed after 30s`.
+- Each attempt requires curl success **and** JSON `"status":"ok"` (unhealthy app still fails).
+- Localhost **127.0.0.1** ports **3033** / **3034** only.
+- Tests: `apps/api/src/tests/verifyHealthRetry.test.ts`.
 
-## Local QA (`7e96dd6` / post-merge)
+## Proxy / rate-limit note (no change applied)
 
-| Check                           | Result                                             |
-| ------------------------------- | -------------------------------------------------- |
-| API tests                       | 24 passed, 6 integration skipped                   |
-| typecheck / lint                | PASS                                               |
-| `npm run build`                 | PASS                                               |
-| `ci-validate-deploy-scripts.sh` | PASS (Git Bash)                                    |
-| `format:check` (Windows)        | **FAIL** (CRLF/Prettier drift; CI on Linux passed) |
+- Public traffic: Cloudflare ? Nginx (sets `X-Forwarded-For`) ? API on `127.0.0.1:3033`.
+- Express `trust proxy` is **false**; `express-rate-limit` warns when `X-Forwarded-For` is present.
+- A safe future fix is likely **`trust proxy` = 1** (single Nginx hop to loopback), **not** `true` (trust all). Requires explicit approval and verification on origin.
 
 ## Open work
 
-1. Merge PR for `fix/deploy-script-dir-clobber` and redeploy or patch server `validate-db-backup.sh`.
-2. Confirm first **02:15 UTC** cron backup + `cron.log` + new dump checksum.
-3. GA **Deploy Production** on `main` HEAD (verify fingerprint secret).
-4. DBA: restore-test database + `CREATEDB`.
-5. Off-site: approve bucket/credentials, install `restic`.
-6. Attachment upload smoke test with dedicated test user.
+1. **Merge PR #5** (after approval) ? redeploy `main` HEAD with `remote-deploy.sh` (no hotfix).
+2. After **02:15 UTC**, verify cron dump + log.
+3. Off-site credentials; DBA restore DB; upload test user.
+4. Optional: `trust proxy` for API behind Nginx.
