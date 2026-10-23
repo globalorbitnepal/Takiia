@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: 'Takiia — Chat, Meet & Social in One Workspace', template: '%s · Takiia' },
   description:
-    'Team messaging, meetings, and social media scheduling in one premium workspace. Built for focused collaboration.',
+    'Chat. Meet. Manage. All in One. Team messaging, meetings, and social scheduling in one premium workspace.',
   openGraph: {
     title: 'Takiia',
     description: 'Chat, meet, and manage social publishing in one workspace.',

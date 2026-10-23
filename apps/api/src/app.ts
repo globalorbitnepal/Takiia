@@ -20,6 +20,7 @@ import { workspacesRouter } from './routes/workspaces.js';
 import { socialRouter } from './routes/social.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { adminRouter } from './routes/admin.js';
+import { contactRouter } from './routes/contact.js';
 
 export function createApp() {
   const app = express();
@@ -38,6 +39,8 @@ export function createApp() {
 
   registerHealthRoutes(app);
   registerCsrfRoute(app);
+
+  app.use('/contact', contactRouter);
 
   app.use(csrfProtection);
   app.use('/auth', authRouter);

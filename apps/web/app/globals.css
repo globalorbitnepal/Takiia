@@ -1,6 +1,6 @@
 :root {
   --bg: #ffffff;
-  --bg-alt: #f6faff;
+  --bg-alt: #f7faff;
   --panel: rgba(255, 255, 255, 0.82);
   --panel-2: #eaf3ff;
   --text: #17243a;
@@ -723,4 +723,244 @@ select {
     border-right: 0;
     border-bottom: 1px solid var(--border);
   }
+}
+
+/* —— Marketing pages —— */
+.marketing-page {
+  padding: 2rem 0 4rem;
+}
+
+.marketing-page-header {
+  max-width: 42rem;
+  margin-bottom: 2rem;
+}
+
+.marketing-lead {
+  font-size: 1.1rem;
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 40rem;
+}
+
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.breadcrumbs li:not(:last-child)::after {
+  content: '/';
+  margin-left: 0.5rem;
+  opacity: 0.45;
+}
+
+.capability-strip {
+  padding: 1.25rem 0;
+}
+
+.capability-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+.capability-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--primary-deep);
+}
+
+.capability-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.feature-highlights {
+  margin: 0 0 1.25rem;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.honesty-note {
+  font-size: 0.92rem;
+  color: var(--muted);
+  border-left: 3px solid var(--accent-cyan);
+  padding-left: 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+.feature-card-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 1.5rem;
+}
+
+.feature-card-link {
+  display: block;
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feature-card-link:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.integration-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.integration-card {
+  padding: 1.25rem;
+}
+
+.integration-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.status-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--primary-deep);
+}
+
+.dashboard-preview {
+  padding: 1rem;
+}
+
+.dashboard-preview-grid {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.dashboard-preview-sidebar {
+  font-size: 12px;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  padding-right: 0.5rem;
+}
+
+.dashboard-preview-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.faq-stack {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.contact-form {
+  display: grid;
+  gap: 1rem;
+  max-width: 520px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.form-success {
+  color: #059669;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.site-footer {
+  padding: 3rem 0 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.site-footer-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.site-footer a {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.92rem;
+  margin-top: 0.35rem;
+}
+
+.site-footer a:hover {
+  color: var(--primary);
+}
+
+.site-footer-copy {
+  font-size: 12px;
+  margin-top: 2rem;
+}
+
+.pricing-table-wrap {
+  overflow-x: auto;
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.pricing-table th,
+.pricing-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.pricing-table th {
+  background: var(--panel-2);
+  font-weight: 700;
+  color: var(--primary-deep);
+}
+
+.legal-prose .h2 {
+  margin-top: 2rem;
 }

@@ -1,19 +1,11 @@
 import Link from 'next/link';
+import { CapabilityStrip } from './CapabilityStrip';
+import { DashboardPreview } from './DashboardPreview';
 import { HeroSection } from './HeroSection';
+import { HomeFaq } from './HomeFaq';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
 import { PricingSection } from './PricingSection';
-
-const capabilities = [
-  'Messages',
-  'Meetings',
-  'Social Media',
-  'Teams',
-  'Files',
-  'Events',
-  'Notifications',
-  'Scheduling',
-];
 
 export function LandingPage() {
   return (
@@ -22,18 +14,7 @@ export function LandingPage() {
       <main>
         <HeroSection />
 
-        <section className="section-alt" style={{ padding: '1.5rem 0' }}>
-          <div
-            className="container"
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', justifyContent: 'center' }}
-          >
-            {capabilities.map((c) => (
-              <span key={c} className="muted" style={{ fontWeight: 600 }}>
-                {c}
-              </span>
-            ))}
-          </div>
-        </section>
+        <CapabilityStrip />
 
         <section className="section" id="platform">
           <div className="container">
@@ -46,16 +27,16 @@ export function LandingPage() {
             <div className="grid-2" style={{ marginTop: '2rem' }}>
               {[
                 [
-                  'Too many disconnected tools',
+                  'Too Many Tools',
                   'Move conversations, meetings, and publishing into one workspace view.',
                 ],
                 [
-                  'Scattered messages and tasks',
+                  'Scattered Work',
                   'Keep group chats, read state, and team membership in one place.',
                 ],
                 [
-                  'Social publishing without workflow',
-                  'Draft, schedule, and track publish jobs with clear status.',
+                  'Limited Visibility',
+                  'Draft, schedule, and track publish jobs with clear status in the dashboard.',
                 ],
               ].map(([title, body]) => (
                 <article key={title} className="card glass" style={{ padding: '1.25rem' }}>
@@ -66,6 +47,20 @@ export function LandingPage() {
                 </article>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="section section-alt" id="workspace">
+          <div className="container grid-2">
+            <div>
+              <h2 className="h2">One Workspace. A Clearer Way to Work.</h2>
+              <p className="muted">
+                Signed-in customers see live inbox, subscription usage, events, and social queue data.
+                The preview opposite uses fictional demo data only.
+              </p>
+              <Link className="btn" href="/app">Open dashboard</Link>
+            </div>
+            <DashboardPreview />
           </div>
         </section>
 
@@ -83,8 +78,8 @@ export function LandingPage() {
                 <li>Attachments with membership-checked downloads</li>
                 <li>Search people and filter conversations</li>
               </ul>
-              <Link className="btn" href="/app/inbox">
-                Open messaging
+              <Link className="btn" href="/features/messaging">
+                Explore Messaging
               </Link>
             </div>
             <div className="card glass" style={{ padding: '1rem', minHeight: 280 }}>
@@ -136,6 +131,7 @@ export function LandingPage() {
               group meetings, screen sharing, and verified TURN/LiveKit routing are still being
               hardened — not claimed as complete Zoom-class meetings yet.
             </p>
+            <Link className="btn" href="/features/meetings">Explore Meetings</Link>
           </div>
         </section>
 
@@ -147,21 +143,25 @@ export function LandingPage() {
               app review are in place. Scheduling, queues, idempotent publish jobs, and retries are
               implemented server-side; live publishing remains pending platform configuration.
             </p>
+            <Link className="btn" href="/features/social-media">
+              Explore Social Media Management
+            </Link>
           </div>
         </section>
 
         <section className="section" id="teams">
           <div className="container">
-            <h2 className="h2">Your Team, Your Workspace, One Clear Workflow.</h2>
+            <h2 className="h2">Give Your Team One Place to Work Together.</h2>
             <p className="muted">
               Workspaces isolate billing, social accounts, and scheduled posts per team.
             </p>
+            <Link className="btn" href="/features/teams">Explore Teams</Link>
           </div>
         </section>
 
         <section className="section section-alt" id="calendar">
           <div className="container">
-            <h2 className="h2">Keep Meetings, Events and Content on Schedule.</h2>
+            <h2 className="h2">Keep Every Conversation, Meeting and Post on Schedule.</h2>
             <p className="muted">
               Workspace events and social schedules share a unified calendar concept in the
               dashboard.
@@ -171,22 +171,22 @@ export function LandingPage() {
 
         <section className="section" id="files">
           <div className="container">
-            <h2 className="h2">Share the Files Your Team Needs.</h2>
+            <h2 className="h2">Share What Your Team Needs, Securely.</h2>
             <p className="muted">
               Validated uploads, storage quotas by plan, and authenticated downloads.
             </p>
+            <Link className="btn" href="/features/file-sharing">Explore File Sharing</Link>
           </div>
         </section>
 
         <section className="section section-alt" id="dashboard-preview">
           <div className="container">
-            <h2 className="h2">One Dashboard. A Clearer View of Everything.</h2>
+            <h2 className="h2">Choose a Plan That Fits the Way You Work.</h2>
             <p className="muted">
-              Signed-in users see live inbox, subscription usage, events, and social queue data.
+              Plans and limits load from your database configuration—see full comparison on the
+              pricing page.
             </p>
-            <Link className="btn" href="/app">
-              Go to dashboard
-            </Link>
+            <Link className="btn" href="/pricing">View Pricing</Link>
           </div>
         </section>
 
@@ -205,11 +205,12 @@ export function LandingPage() {
         <section className="section section-alt" id="integrations">
           <div className="container">
             <h2 className="h2">Connect the Platforms You Already Use.</h2>
-            <ul>
+            <ul className="muted">
               <li>Facebook — structure ready; requires app credentials</li>
               <li>Instagram — via Meta APIs; requires approval</li>
               <li>TikTok — structure ready; requires developer app</li>
             </ul>
+            <Link className="btn secondary" href="/integrations">Integration directory</Link>
           </div>
         </section>
 
@@ -217,7 +218,7 @@ export function LandingPage() {
 
         <section className="section" id="trust">
           <div className="container">
-            <h2 className="h2">Built with security and privacy in mind</h2>
+            <h2 className="h2">Your Workspace. Your Data. Your Control.</h2>
             <p className="muted">
               Session-based authentication, CSRF protection on mutating API requests,
               workspace-scoped data access, encrypted token storage fields for social connections,
@@ -227,33 +228,14 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="section section-alt" id="faq">
-          <div className="container">
-            <h2 className="h2">FAQ</h2>
-            <details className="card" style={{ padding: '1rem', marginBottom: '0.5rem' }}>
-              <summary>What is Takiia?</summary>
-              <p className="muted">
-                An all-in-one workspace for team messaging, meetings, and social scheduling.
-              </p>
-            </details>
-            <details className="card" style={{ padding: '1rem', marginBottom: '0.5rem' }}>
-              <summary>Does every platform support automatic publishing?</summary>
-              <p className="muted">No — each network has API limits and approval requirements.</p>
-            </details>
-            <details className="card" style={{ padding: '1rem' }}>
-              <summary>What happens when my plan limit is reached?</summary>
-              <p className="muted">
-                The API returns a quota error; upgrade or wait for the next billing period.
-              </p>
-            </details>
-          </div>
-        </section>
+        <HomeFaq />
 
         <section className="section" style={{ textAlign: 'center' }}>
           <div className="container">
             <h2 className="h2">Bring Your Conversations and Workflows Together.</h2>
             <p className="muted">
-              Start with the tools your team needs and grow with a plan that fits.
+              Manage your communication, meetings, team collaboration and social publishing from
+              one organized workspace.
             </p>
             <Link className="btn" href="/signup">
               Get Started

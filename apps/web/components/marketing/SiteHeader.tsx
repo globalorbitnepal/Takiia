@@ -8,25 +8,25 @@ const navGroups = [
   {
     label: 'Product',
     links: [
-      { href: '/#platform', label: 'Platform overview' },
-      { href: '/app', label: 'Dashboard' },
+      { href: '/features', label: 'All features' },
+      { href: '/integrations', label: 'Integrations' },
       { href: '/#dashboard-preview', label: 'Workspace preview' },
     ],
   },
   {
     label: 'Features',
     links: [
-      { href: '/#messaging', label: 'Team messaging' },
-      { href: '/#meetings', label: 'Online meetings' },
-      { href: '/#social', label: 'Social publishing' },
+      { href: '/features/messaging', label: 'Messaging' },
+      { href: '/features/meetings', label: 'Meetings' },
+      { href: '/features/social-media', label: 'Social media' },
     ],
   },
   {
     label: 'Solutions',
     links: [
-      { href: '/#teams', label: 'Teams' },
-      { href: '/#calendar', label: 'Scheduling' },
-      { href: '/#files', label: 'Files & sharing' },
+      { href: '/solutions/teams', label: 'Teams' },
+      { href: '/solutions/agencies', label: 'Agencies' },
+      { href: '/solutions/individuals', label: 'Individuals' },
     ],
   },
 ];
@@ -85,8 +85,8 @@ export function SiteHeader() {
           <Link className="nav-link" href="/pricing" onClick={() => setMobileOpen(false)}>
             Pricing
           </Link>
-          <Link className="nav-link" href="/#faq" onClick={() => setMobileOpen(false)}>
-            Blog
+          <Link className="nav-link" href="/help" onClick={() => setMobileOpen(false)}>
+            Resources
           </Link>
         </nav>
 

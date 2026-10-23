@@ -39,6 +39,7 @@ const envSchema = z.object({
   TIKTOK_CLIENT_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   TIKTOK_CLIENT_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
   PAYMENT_PROVIDER: z.preprocess(emptyToUndefined, z.string().optional()),
+  CONTACT_INBOX_EMAIL: z.preprocess(emptyToUndefined, z.string().email().optional()),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -89,4 +90,5 @@ export const env = {
     tiktokClientSecret: parsed.data.TIKTOK_CLIENT_SECRET,
   },
   paymentProvider: parsed.data.PAYMENT_PROVIDER ?? 'pending',
+  contactInboxEmail: parsed.data.CONTACT_INBOX_EMAIL,
 };
