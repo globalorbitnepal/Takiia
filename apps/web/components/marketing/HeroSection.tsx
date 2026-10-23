@@ -68,12 +68,15 @@ const features = [
 
 export function HeroSection() {
   return (
-    <section className="hero-section" id="top">
+    <section className="hero-section" id="top" aria-labelledby="hero-heading">
       <div className="hero-bg" aria-hidden />
+      <div className="hero-glass-ribbon" aria-hidden />
+      <div className="hero-glass-orb hero-glass-orb--a" aria-hidden />
+      <div className="hero-glass-orb hero-glass-orb--b" aria-hidden />
       <div className="container hero-grid">
         <div className="hero-copy">
           <p className="hero-badge">ALL-IN-ONE WORKSPACE</p>
-          <h1 className="hero-title">
+          <h1 className="hero-title" id="hero-heading">
             Chat, Meet and Manage Social Media{' '}
             <span className="hero-title-gradient">All in One Place.</span>
           </h1>
@@ -106,6 +109,7 @@ export function HeroSection() {
           </ul>
         </div>
         <div className="hero-visual">
+          <div className="hero-visual-glass" aria-hidden />
           <Image
             src="/marketing/hero-desktop.jpg"
             alt="Takiia dashboard on laptop and team video call on mobile"

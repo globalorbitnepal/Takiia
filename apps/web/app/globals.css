@@ -169,8 +169,10 @@ select {
 }
 
 .marketing-nav-hero {
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom-color: rgba(228, 235, 244, 0.7);
+  background: color-mix(in srgb, #ffffff 72%, transparent);
+  border-bottom-color: rgba(228, 235, 244, 0.55);
+  backdrop-filter: blur(18px) saturate(1.15);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
 }
 
 .marketing-nav-inner {
@@ -196,7 +198,7 @@ select {
 
 .brand-logo-image {
   width: auto;
-  height: 42px;
+  height: clamp(38px, 4vw, 48px);
   object-fit: contain;
 }
 
@@ -346,10 +348,55 @@ select {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 85% 40%, rgba(34, 199, 232, 0.14), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(103, 232, 197, 0.1), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 85% 40%, rgba(34, 199, 232, 0.2), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(103, 232, 197, 0.14), transparent 50%),
     linear-gradient(180deg, #f8fbff 0%, #ffffff 45%, #ffffff 100%);
   pointer-events: none;
+}
+
+.hero-glass-ribbon {
+  position: absolute;
+  width: 52%;
+  height: 72%;
+  right: -6%;
+  top: 10%;
+  background: linear-gradient(
+    125deg,
+    rgba(34, 211, 238, 0.32) 0%,
+    rgba(29, 140, 245, 0.22) 45%,
+    rgba(255, 255, 255, 0.04) 72%
+  );
+  border-radius: 42% 58% 52% 48% / 44% 42% 58% 56%;
+  filter: blur(42px);
+  opacity: 0.9;
+  pointer-events: none;
+  transform: rotate(-7deg);
+}
+
+.hero-glass-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 60px rgba(29, 140, 245, 0.1);
+}
+
+.hero-glass-orb--a {
+  width: min(240px, 34vw);
+  height: min(240px, 34vw);
+  top: 12%;
+  right: 6%;
+  opacity: 0.55;
+}
+
+.hero-glass-orb--b {
+  width: min(120px, 18vw);
+  height: min(120px, 18vw);
+  bottom: 22%;
+  left: 42%;
+  opacity: 0.4;
 }
 
 .hero-grid {
@@ -369,8 +416,10 @@ select {
   margin: 0 0 1.25rem;
   padding: 0.4rem 0.85rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, #e8f4ff, #e6faf5);
-  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: color-mix(in srgb, #ffffff 68%, #e8f4ff);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 22px rgba(29, 140, 245, 0.08);
   color: #2563eb;
   font-size: 11px;
   font-weight: 700;
@@ -421,8 +470,8 @@ select {
 .btn-hero-video {
   padding: 0.85rem 1.35rem;
   font-size: 1rem;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: color-mix(in srgb, #ffffff 86%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.72);
   color: #1e3358;
   font-weight: 600;
   border-radius: 999px;
@@ -430,6 +479,7 @@ select {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  backdrop-filter: blur(14px);
   box-shadow: 0 8px 24px rgba(23, 59, 112, 0.08);
 }
 
@@ -464,10 +514,13 @@ select {
   align-items: center;
   gap: 0.65rem;
   padding: 0.85rem 1rem;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(228, 235, 244, 0.9);
+  background: color-mix(in srgb, #ffffff 80%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(23, 59, 112, 0.07);
+  backdrop-filter: blur(16px) saturate(1.12);
+  box-shadow:
+    0 10px 28px rgba(23, 59, 112, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
   font-size: 0.88rem;
   font-weight: 600;
   color: #1e3358;
@@ -490,15 +543,33 @@ select {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.hero-visual-glass {
+  position: absolute;
+  inset: 8% 4% 4% 12%;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.35), rgba(34, 211, 238, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 70px rgba(29, 140, 245, 0.14);
+  transform: rotate(-2deg);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .hero-mockup-image {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 720px;
   height: auto;
-  border-radius: 4px;
-  object-fit: contain;
-  filter: drop-shadow(0 24px 48px rgba(23, 59, 112, 0.15));
+  border-radius: 12px;
+  object-fit: cover;
+  object-position: 72% 40%;
+  filter: drop-shadow(0 28px 56px rgba(23, 59, 112, 0.18));
 }
 
 @media (min-width: 1100px) {
@@ -541,8 +612,9 @@ select {
 
   .hero-mockup-image {
     max-width: none;
-    width: 108%;
-    margin-right: -4%;
+    width: 128%;
+    margin-right: -18%;
+    aspect-ratio: 16 / 10;
   }
 }
 
