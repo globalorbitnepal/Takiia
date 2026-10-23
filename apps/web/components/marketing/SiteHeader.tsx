@@ -86,7 +86,7 @@ export function SiteHeader() {
             Pricing
           </Link>
           <Link className="nav-link" href="/#faq" onClick={() => setMobileOpen(false)}>
-            Blog
+            FAQ
           </Link>
         </nav>
 

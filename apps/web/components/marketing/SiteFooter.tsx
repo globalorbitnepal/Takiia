@@ -40,8 +40,7 @@ export function SiteFooter() {
         </div>
       </div>
       <p className="container muted" style={{ fontSize: 12, marginTop: '2rem' }}>
-        © {new Date().getFullYear()} Takiia. Policies and contact details should be completed before
-        public launch.
+        © {new Date().getFullYear()} Takiia. All rights reserved.
       </p>
     </footer>
   );
