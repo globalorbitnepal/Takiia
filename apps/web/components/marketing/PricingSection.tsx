@@ -14,18 +14,55 @@ type Plan = {
 
 export function PricingSection() {
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
     fetch(`${API_BASE}/billing/plans`)
-      .then((r) => r.json())
-      .then((d) => setPlans(d.plans ?? []))
-      .catch(() => setPlans([]));
+      .then((r) => {
+        if (!r.ok) throw new Error(`Could not load plans (${r.status})`);
+        return r.json();
+      })
+      .then((d) => {
+        if (!cancelled) setPlans(d.plans ?? []);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setPlans([]);
+          setLoadError(err instanceof Error ? err.message : 'Failed to load plans');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <section className="section" id="pricing">
       <div className="container">
         <h2 className="h2">A Plan That Fits the Way You Work.</h2>
-        <p className="muted">Prices load from the database-backed plan configuration.</p>
+        <p className="muted">Live plans from your Takiia workspace configuration.</p>
+        {loading ? (
+          <p className="muted" role="status" style={{ marginTop: '1.5rem' }}>
+            Loading plans…
+          </p>
+        ) : null}
+        {loadError ? (
+          <p style={{ color: 'var(--danger)', marginTop: '1rem' }} role="alert">
+            {loadError}. Try again later or <Link href="/contact">contact support</Link>.
+          </p>
+        ) : null}
+        {!loading && plans.length === 0 && !loadError ? (
+          <p className="muted" style={{ marginTop: '1.5rem' }}>
+            No plans are published yet. Create an account to get started.
+          </p>
+        ) : null}
         <div className="grid-2" style={{ marginTop: '2rem' }}>
           {plans.map((plan) => (
             <article

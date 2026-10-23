@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { apiFetch } from '../../lib/api';
+import { AuthPageFrame } from '../../components/marketing/AuthPageFrame';
 
 export default function SignupPage() {
   const [displayName, setDisplayName] = useState('');
@@ -29,8 +30,7 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="container" style={{ padding: '3rem 0', maxWidth: 480 }}>
-      <h1>Create your account</h1>
+    <AuthPageFrame title="Create your account">
       <form
         className="card"
         style={{ padding: '1.2rem', display: 'grid', gap: '0.8rem' }}
@@ -74,6 +74,6 @@ export default function SignupPage() {
       <p className="muted" style={{ marginTop: '1rem' }}>
         Already have an account? <Link href="/login">Sign in</Link>
       </p>
-    </main>
+    </AuthPageFrame>
   );
 }
