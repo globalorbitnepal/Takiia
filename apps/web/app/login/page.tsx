@@ -6,9 +6,14 @@ import { Suspense, useState } from 'react';
 import { apiFetch } from '../../lib/api';
 import { AuthPageFrame } from '../../components/marketing/AuthPageFrame';
 
+function safeInAppPath(next: string | null): string {
+  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/app';
+  return next;
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/app';
+  const nextPath = safeInAppPath(searchParams.get('next'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +25,7 @@ function LoginForm() {
     setError(null);
     try {
       await apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-      window.location.href = nextPath.startsWith('/') ? nextPath : '/app';
+      window.location.href = nextPath;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -57,7 +62,11 @@ function LoginForm() {
             autoComplete="current-password"
           />
         </label>
-        {error ? <p style={{ color: 'var(--danger)' }} role="alert">{error}</p> : null}
+        {error ? (
+          <p style={{ color: 'var(--danger)' }} role="alert">
+            {error}
+          </p>
+        ) : null}
         <button className="btn" type="submit" disabled={loading}>
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
@@ -77,7 +86,9 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <AuthPageFrame title="Sign in">
-          <p className="muted" role="status">Loading…</p>
+          <p className="muted" role="status">
+            Loading…
+          </p>
         </AuthPageFrame>
       }
     >

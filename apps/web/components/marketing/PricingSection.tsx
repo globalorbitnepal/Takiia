@@ -55,8 +55,7 @@ export function PricingSection() {
         ) : null}
         {loadError ? (
           <p style={{ color: 'var(--danger)', marginTop: '1rem' }} role="alert">
-            {loadError}. Try again later or{' '}
-            <Link href="/contact">contact support</Link>.
+            {loadError}. Try again later or <Link href="/contact">contact support</Link>.
           </p>
         ) : null}
         {!loading && plans.length === 0 && !loadError ? (
