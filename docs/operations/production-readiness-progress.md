@@ -12,7 +12,7 @@ Evidence only ? no secrets. Last verified: **2026-10-23** (PR #5 opened).
 | 4   | Stock `remote-deploy` exit 0 (no hotfix) | **FAIL**    | Server `verify-health.sh` has hotfix (`wait_for_health`); git at `b68f49f` without retry until PR #5 merge + redeploy |
 | 5   | Last full deploy exit 0                  | **PASS**    | 2026-10-22 UTC with hotfixed `verify-health` + `verify-deploy` for `b68f49f`                                          |
 | 6   | CI on `b68f49f`                          | **PASS**    | [39850453991](https://github.com/globalorbitnepal/Takiia/actions/runs/39850453991)                                    |
-| 7   | CI on PR #5                              | **PASS**    | [39852315765](https://github.com/globalorbitnepal/Takiia/actions/runs/39852315765) on `a289313`                          |
+| 7   | CI on PR #5                              | **PASS**    | [39852315765](https://github.com/globalorbitnepal/Takiia/actions/runs/39852315765) on `a289313`                       |
 | 8   | Public health / ready / pricing          | **PASS**    | commit `b68f49f?`, DB ok, pricing 200                                                                                 |
 | 9   | Migrations                               | **PASS**    | up to date                                                                                                            |
 | 10  | PM2 Takiia only                          | **PASS**    | `takiia-api`, `takiia-web` online                                                                                     |
