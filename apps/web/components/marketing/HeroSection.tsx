@@ -1,6 +1,14 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+/**
+ * Hero device artwork is a devices-only crop of the brand mockup
+ * (apps/web/public/marketing/hero-desktop.jpg) so the headline, sub-copy, buttons and
+ * feature chips stay as crisp live text instead of being duplicated inside a bitmap.
+ */
 const features = [
   {
     label: 'Team Messaging',
@@ -66,7 +74,53 @@ const features = [
   },
 ];
 
+const tourStops = [
+  {
+    label: 'Inbox and group chats',
+    detail: 'Direct messages, group conversations, read state, and attachments in one thread list.',
+  },
+  {
+    label: 'Meetings and calls',
+    detail: 'Schedule sessions, then join the call from the same workspace view.',
+  },
+  {
+    label: 'Social queue',
+    detail: 'Draft, schedule, and track publishing jobs with a clear status per platform.',
+  },
+  {
+    label: 'Team and files',
+    detail: 'Members, roles, and shared files with plan-based quotas enforced server-side.',
+  },
+];
+
 export function HeroSection() {
+  const [tourOpen, setTourOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeTour = useCallback(() => setTourOpen(false), []);
+
+  useEffect(() => {
+    if (!tourOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeTour();
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
+    closeButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [tourOpen, closeTour]);
+
   return (
     <section className="hero-section" id="top" aria-labelledby="hero-heading">
       <div className="hero-bg" aria-hidden />
@@ -77,7 +131,8 @@ export function HeroSection() {
         <div className="hero-copy">
           <p className="hero-badge">ALL-IN-ONE WORKSPACE</p>
           <h1 className="hero-title" id="hero-heading">
-            Chat, Meet and Manage Social Media{' '}
+            <span className="hero-title-line">Chat, Meet and</span>{' '}
+            <span className="hero-title-line">Manage Social Media</span>{' '}
             <span className="hero-title-gradient">All in One Place.</span>
           </h1>
           <p className="hero-lead">
@@ -90,7 +145,13 @@ export function HeroSection() {
               Get Started
               <span aria-hidden>→</span>
             </Link>
-            <button type="button" className="btn btn-hero-video">
+            <button
+              type="button"
+              className="btn btn-hero-video"
+              aria-haspopup="dialog"
+              aria-expanded={tourOpen}
+              onClick={() => setTourOpen(true)}
+            >
               <span className="hero-play" aria-hidden>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5v14l11-7z" />
@@ -111,16 +172,74 @@ export function HeroSection() {
         <div className="hero-visual">
           <div className="hero-visual-glass" aria-hidden />
           <Image
-            src="/marketing/hero-desktop.jpg"
-            alt="Takiia dashboard on laptop and team video call on mobile"
-            width={1400}
-            height={1050}
+            src="/marketing/hero-devices.jpg"
+            alt="Takiia workspace on a laptop with the dashboard open, next to the mobile app showing a four-person team meeting"
+            width={1168}
+            height={944}
             priority
+            sizes="(min-width: 1100px) 54vw, (min-width: 720px) 88vw, 94vw"
             className="hero-mockup-image"
-            sizes="(min-width: 1280px) 640px, 50vw"
           />
         </div>
       </div>
+      {tourOpen ? (
+        <div className="hero-tour-overlay">
+          <button
+            type="button"
+            className="hero-tour-backdrop"
+            tabIndex={-1}
+            aria-label="Close product tour"
+            onClick={closeTour}
+          />
+          <div
+            className="hero-tour-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hero-tour-title"
+          >
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="hero-tour-close"
+              aria-label="Close product tour"
+              onClick={closeTour}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            <p className="eyebrow hero-tour-eyebrow">Product tour</p>
+            <h2 className="h2 hero-tour-title" id="hero-tour-title">
+              A quick look inside Takiia
+            </h2>
+            <p className="muted hero-tour-lead">
+              Our walkthrough video is still in production. Until it is live, here is what the
+              workspace covers today.
+            </p>
+            <ul className="hero-tour-list">
+              {tourStops.map((stop) => (
+                <li key={stop.label}>
+                  <strong>{stop.label}</strong>
+                  <span className="muted">{stop.detail}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="hero-tour-actions">
+              <Link className="btn" href="/signup">
+                Create your workspace
+              </Link>
+              <Link className="btn secondary" href="/features">
+                Browse all features
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
