@@ -8,7 +8,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * Hero device artwork is a devices-only crop of the brand mockup
  * (apps/web/public/marketing/hero-desktop.jpg) so the headline, sub-copy, buttons and
  * feature chips stay as crisp live text instead of being duplicated inside a bitmap.
+ *
+ * The served file is a 2x (2336x1888) high-density export of that crop. On retina displays
+ * next/image then downsamples real pixels instead of letting the browser upscale the 1168px
+ * original, which is what keeps the mockup looking ultra HD rather than soft.
  */
+const heroImage = {
+  src: '/marketing/hero-devices-2x.webp',
+  width: 2336,
+  height: 1888,
+  /** 20px WebP thumbnail inlined so the frame paints instantly while the HD image decodes. */
+  blurDataURL:
+    'data:image/webp;base64,UklGRpQAAABXRUJQVlA4IIgAAADwAwCdASoUABAAPu1iqU2ppaOiMAgBMB2JYwCdMoAC/L7rVmaMlX/AAP7n+e/AsRmfE4awhyhIQekEvRTgcBJ+D9MkuhYF8J5IAn3tZqq7OWrxdaBvsnrNW8vSsvpI8T4i2ZdjyGDSefbTM7rpXq8CUVEw8qlzQxv+muLqLjp57b0+nGENIAAA',
+} as const;
+
 const features = [
   {
     label: 'Team Messaging',
@@ -172,14 +185,18 @@ export function HeroSection() {
         <div className="hero-visual">
           <div className="hero-visual-glass" aria-hidden />
           <Image
-            src="/marketing/hero-devices.jpg"
+            src={heroImage.src}
             alt="Takiia workspace on a laptop with the dashboard open, next to the mobile app showing a four-person team meeting"
-            width={1168}
-            height={944}
+            width={heroImage.width}
+            height={heroImage.height}
             priority
-            sizes="(min-width: 1100px) 54vw, (min-width: 720px) 88vw, 94vw"
+            quality={92}
+            placeholder="blur"
+            blurDataURL={heroImage.blurDataURL}
+            sizes="(min-width: 1180px) 660px, (min-width: 1100px) 50vw, (min-width: 720px) 88vw, 94vw"
             className="hero-mockup-image"
           />
+          <div className="hero-visual-frame" aria-hidden />
         </div>
       </div>
       {tourOpen ? (

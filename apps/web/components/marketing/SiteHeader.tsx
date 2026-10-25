@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const navGroups = [
   {
@@ -34,9 +34,18 @@ const navGroups = [
 export function SiteHeader() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Deepen the glass once content starts sliding underneath the sticky bar.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <header className="marketing-nav marketing-nav-hero">
+    <header className={`marketing-nav marketing-nav-hero${scrolled ? ' is-scrolled' : ''}`}>
       <div className="container marketing-nav-inner">
         <Link href="/" className="brand-logo" aria-label="Takiia home">
           <Image

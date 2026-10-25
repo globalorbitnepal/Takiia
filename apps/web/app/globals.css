@@ -27,6 +27,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Keep in-page anchors clear of the sticky glass header. */
+  scroll-padding-top: 88px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -163,16 +165,92 @@ select {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: color-mix(in srgb, #ffffff 88%, transparent);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
+  isolation: isolate;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(248, 251, 255, 0.62) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 10px 30px rgba(23, 59, 112, 0.05);
+  transition:
+    background 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+/* Soft aurora hairline instead of a flat border: crisp 1px, gradient tinted. */
+.marketing-nav::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(34, 199, 232, 0.5) 22%,
+    rgba(37, 99, 235, 0.35) 50%,
+    rgba(103, 232, 197, 0.5) 78%,
+    transparent 100%
+  );
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .marketing-nav-hero {
-  background: color-mix(in srgb, #ffffff 72%, transparent);
-  border-bottom-color: rgba(228, 235, 244, 0.55);
-  backdrop-filter: blur(18px) saturate(1.15);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+  background:
+    radial-gradient(120% 160% at 12% -40%, rgba(34, 199, 232, 0.16) 0%, rgba(34, 199, 232, 0) 58%),
+    radial-gradient(90% 140% at 88% -30%, rgba(103, 232, 197, 0.16) 0%, rgba(103, 232, 197, 0) 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(246, 251, 255, 0.66) 100%);
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(26px) saturate(190%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 -1px 0 rgba(148, 178, 216, 0.1) inset,
+    0 12px 34px rgba(23, 59, 112, 0.07);
+}
+
+.marketing-nav-hero.is-scrolled {
+  background:
+    radial-gradient(120% 160% at 12% -40%, rgba(34, 199, 232, 0.2) 0%, rgba(34, 199, 232, 0) 58%),
+    radial-gradient(90% 140% at 88% -30%, rgba(103, 232, 197, 0.2) 0%, rgba(103, 232, 197, 0) 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(246, 251, 255, 0.78) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.98) inset,
+    0 -1px 0 rgba(148, 178, 216, 0.12) inset,
+    0 18px 44px rgba(23, 59, 112, 0.11);
+}
+
+/* Browsers without backdrop-filter get a readable, still tinted bar. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .marketing-nav,
+  .marketing-nav-hero {
+    background: rgba(252, 254, 255, 0.97);
+  }
+
+  .marketing-nav-hero.is-scrolled {
+    background: #ffffff;
+  }
+
+  .nav-dropdown-panel,
+  .site-nav-desktop.is-open {
+    background: #ffffff;
+  }
+}
+
+/* Respect the OS "reduce transparency" preference: solid surfaces, no blur. */
+@media (prefers-reduced-transparency: reduce) {
+  .marketing-nav,
+  .marketing-nav-hero,
+  .marketing-nav-hero.is-scrolled,
+  .nav-dropdown-panel,
+  .site-nav-desktop.is-open {
+    background: #ffffff;
+    backdrop-filter: none;
+    box-shadow: 0 1px 0 rgba(148, 178, 216, 0.25);
+  }
+
+  .hero-visual-glass {
+    display: none;
+  }
 }
 
 .marketing-nav-inner {
@@ -217,19 +295,26 @@ select {
   font-size: 0.95rem;
   font-weight: 500;
   padding: 0.5rem 0.85rem;
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   white-space: nowrap;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .nav-link:hover {
-  color: var(--primary);
+  color: var(--primary-deep);
   text-decoration: none;
-  background: rgba(37, 99, 235, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(237, 245, 255, 0.75));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 4px 14px rgba(23, 59, 112, 0.08);
 }
 
 .nav-dropdown {
@@ -238,28 +323,46 @@ select {
 
 .nav-dropdown-panel {
   position: absolute;
-  top: calc(100% + 0.35rem);
+  top: calc(100% + 0.45rem);
   left: 0;
-  min-width: 200px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(23, 59, 112, 0.12);
-  padding: 0.35rem;
+  min-width: 210px;
+  padding: 0.4rem;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 22px 48px rgba(23, 59, 112, 0.14);
   z-index: 50;
+  animation: nav-pop 0.16s ease-out;
+}
+
+@keyframes nav-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .nav-dropdown-panel a {
   display: block;
   padding: 0.55rem 0.75rem;
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--text);
   font-size: 0.9rem;
   text-decoration: none;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
 }
 
 .nav-dropdown-panel a:hover {
-  background: var(--panel-2);
+  background: linear-gradient(180deg, #f2f8ff, #e8f2ff);
   color: var(--primary-deep);
   text-decoration: none;
 }
@@ -284,35 +387,68 @@ select {
   color: #1e3358;
   font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.45rem 0.5rem;
-  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  border-radius: 999px;
   cursor: pointer;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .lang-select:hover {
-  background: rgba(37, 99, 235, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(237, 245, 255, 0.75));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 4px 14px rgba(23, 59, 112, 0.08);
 }
 
 .nav-login {
   color: #1e3358;
   font-weight: 600;
   font-size: 0.95rem;
-  padding: 0.45rem 0.65rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .nav-login:hover {
-  color: var(--primary);
+  color: var(--primary-deep);
   text-decoration: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(237, 245, 255, 0.75));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 4px 14px rgba(23, 59, 112, 0.08);
 }
 
 .btn-nav-cta {
   padding: 0.62rem 1.15rem;
-  background: linear-gradient(90deg, #22c7e8 0%, #34d399 55%, #67e8c5 100%);
-  box-shadow: 0 8px 24px rgba(34, 199, 232, 0.35);
+  background: linear-gradient(135deg, #22c7e8 0%, #2dd4bf 52%, #34d399 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -1px 0 rgba(9, 96, 120, 0.14) inset,
+    0 10px 26px rgba(34, 199, 232, 0.35);
   font-size: 0.92rem;
   white-space: nowrap;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.btn-nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 -1px 0 rgba(9, 96, 120, 0.14) inset,
+    0 14px 32px rgba(34, 199, 232, 0.44);
+}
+
+.btn-nav-cta:active {
+  transform: translateY(0);
 }
 
 .nav-mobile-toggle {
@@ -322,9 +458,12 @@ select {
   gap: 5px;
   width: 40px;
   height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(240, 247, 255, 0.8));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 6px 16px rgba(23, 59, 112, 0.08);
   cursor: pointer;
   padding: 0;
 }
@@ -348,9 +487,10 @@ select {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 85% 40%, rgba(34, 199, 232, 0.2), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(103, 232, 197, 0.14), transparent 50%),
-    linear-gradient(180deg, #f8fbff 0%, #ffffff 45%, #ffffff 100%);
+    radial-gradient(ellipse 70% 55% at 82% 28%, rgba(34, 199, 232, 0.22), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 12% 78%, rgba(103, 232, 197, 0.16), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37, 99, 235, 0.08), transparent 60%),
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 46%, #ffffff 100%);
   pointer-events: none;
 }
 
@@ -570,17 +710,60 @@ select {
   width: 100%;
   max-width: 40rem;
   margin-inline: auto;
+  isolation: isolate;
+}
+
+/* Ambient cyan bloom so the HD mockup sits on light instead of a flat white page. */
+.hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: -14% -10% -16% -8%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(34, 199, 232, 0.26), rgba(34, 199, 232, 0) 74%);
+  filter: blur(8px);
+  pointer-events: none;
 }
 
 .hero-visual-glass {
   position: absolute;
-  inset: 6% 3% -4% 5%;
-  border-radius: 28px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.4), rgba(34, 211, 238, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 24px 70px rgba(29, 140, 245, 0.14);
+  inset: 5% 2% -5% 5%;
+  border-radius: 30px;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(219, 242, 255, 0.32) 46%,
+    rgba(34, 211, 238, 0.16) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 30px 80px rgba(29, 140, 245, 0.16);
   transform: rotate(-1.5deg);
+  pointer-events: none;
+}
+
+/* 1px gradient hairline that hugs the mockup exactly, for a crisp premium edge. */
+.hero-visual-frame {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 20px;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(186, 230, 253, 0.55) 38%,
+    rgba(103, 232, 197, 0.5) 68%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
   pointer-events: none;
 }
 
@@ -590,8 +773,11 @@ select {
   width: 100%;
   height: auto;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 30px 60px rgba(23, 59, 112, 0.16);
+  background: #eff6ff;
+  box-shadow:
+    0 2px 4px rgba(23, 59, 112, 0.06),
+    0 18px 40px rgba(23, 59, 112, 0.12),
+    0 36px 80px rgba(23, 59, 112, 0.14);
 }
 
 @media (min-width: 1100px) {
@@ -644,6 +830,10 @@ select {
   }
 
   .hero-mockup-image {
+    border-radius: 22px;
+  }
+
+  .hero-visual-frame {
     border-radius: 22px;
   }
 }
@@ -792,15 +982,14 @@ select {
     top: 72px;
     left: 0;
     right: 0;
-    background: #fff;
-    border-bottom: 1px solid var(--border);
-    padding: 1rem;
-    box-shadow: var(--shadow);
+    padding: 0.9rem;
+    background: rgba(255, 255, 255, 0.86);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.95) inset,
+      0 24px 60px rgba(23, 59, 112, 0.14);
     z-index: 45;
-  }
-
-  .marketing-nav {
-    position: relative;
   }
 
   .marketing-nav-inner {
